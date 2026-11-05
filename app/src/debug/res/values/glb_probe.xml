@@ -1,0 +1,14 @@
+<resources>
+    <string name="glb_title">3D 홈 검증</string>
+    <string name="glb_notice">실제 GLB와 Filament로 렌더링하는 임시 공용 모델입니다. 최종 곰·토끼 디자인, 미션·주행 상태·레벨은 아직 연결하지 않습니다.</string>
+    <string name="glb_loading">GLB 모델과 그래픽 리소스 준비 중…</string>
+    <string name="glb_loaded">GLB 리소스 로딩 완료 · 화면에 모델이 보이는지 확인하세요.</string>
+    <string name="glb_error">3D 검증 오류\n%1$s</string>
+    <string name="glb_paused">일시정지 · 애니메이션과 프레임 요청 중단</string>
+    <string name="glb_running">재개 · 움직임과 모델 표시를 확인하세요.</string>
+    <string name="glb_render_count">최근 구간의 렌더 제출: %1$d회 · 실제 표시 FPS 측정값은 아닙니다.</string>
+    <string name="glb_greet">3D 인사 재생</string>
+    <string name="glb_pause">3D 일시정지</string>
+    <string name="glb_resume">3D 재개</string>
+    <string name="glb_back">기존 홈으로 돌아가기</string>
+</resources>

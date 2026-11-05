@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:fillViewport="true" android:background="@color/pet_background">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="24dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/pet_title" android:textColor="@color/pet_foreground" android:textSize="30sp" />
+        <TextView android:id="@+id/pet_preview_level" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/pet_level_demo" android:textColor="@color/pet_secondary" android:textSize="18sp" />
+        <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
+            <RadioGroup android:id="@+id/pet_preview_characters" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:orientation="horizontal" />
+        </HorizontalScrollView>
+        <CheckBox android:id="@+id/pet_preview_walking" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="걷기 (해제하면 달리기)" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/pet_preview_running" android:textColor="@color/pet_foreground" android:textSize="18sp" />
+        <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
+            <RadioGroup android:id="@+id/pet_preview_run_directions" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:orientation="horizontal" />
+        </HorizontalScrollView>
+        <com.pleos.mate.core.pet.rendering.PetMotionView android:id="@+id/pet_motion"
+            android:layout_width="match_parent" android:layout_height="280dp"
+            android:contentDescription="@string/pet_description" />
+        <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout android:id="@+id/pet_preview_motions" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:orientation="horizontal" />
+        </HorizontalScrollView>
+        <TextView android:id="@+id/pet_greeting" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:gravity="center"
+            android:textColor="@color/pet_foreground" android:textSize="24sp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/pet_motion_description" android:layout_marginTop="16dp"
+            android:textColor="@color/pet_secondary" android:textSize="18sp" />
+        <Button android:id="@+id/pet_greet" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minHeight="64dp" android:text="@string/pet_greet" />
+        <Button android:id="@+id/pet_restriction" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minHeight="64dp" android:text="@string/pet_restrict" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/pet_motion_notice" android:layout_marginTop="12dp"
+            android:textColor="@color/pet_secondary" android:textSize="16sp" />
+    </LinearLayout>
+</ScrollView>

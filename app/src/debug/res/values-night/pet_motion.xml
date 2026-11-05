@@ -1,0 +1,5 @@
+<resources>
+    <color name="pet_background">#1E2428</color>
+    <color name="pet_foreground">#F2EFE9</color>
+    <color name="pet_secondary">#BDC5CA</color>
+</resources>

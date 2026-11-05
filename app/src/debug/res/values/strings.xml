@@ -1,0 +1,8 @@
+<resources>
+    <string name="window_probe_title">Window SDK 읽기 검증</string>
+    <string name="window_probe_notice">Pleos 에뮬레이터 전용 · ROW_1_LEFT\n창문을 제어하거나 미션·경험치를 지급하지 않습니다. 값의 단위와 열림 기준은 미확정이며 원시값만 표시합니다. 실제 차량에서 사용하지 마세요.</string>
+    <string name="window_probe_check">1. 지원·접근 범위 확인</string>
+    <string name="window_probe_read">2. 현재 원시값 조회</string>
+    <string name="window_probe_subscribe">3. 상태 갱신 구독</string>
+    <string name="window_probe_stop">4. 구독 해제</string>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="24dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/window_probe_title" android:textSize="26sp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/window_probe_notice" android:textSize="18sp" android:layout_marginTop="16dp" />
+        <Button android:id="@+id/window_check" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minHeight="64dp" android:text="@string/window_probe_check" />
+        <Button android:id="@+id/window_read" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minHeight="64dp" android:text="@string/window_probe_read" />
+        <Button android:id="@+id/window_subscribe" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minHeight="64dp" android:text="@string/window_probe_subscribe" />
+        <Button android:id="@+id/window_stop" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minHeight="64dp" android:text="@string/window_probe_stop" />
+        <TextView android:id="@+id/window_result" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textSize="16sp" android:textIsSelectable="true" />
+    </LinearLayout>
+</ScrollView>

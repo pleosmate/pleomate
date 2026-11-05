@@ -1,0 +1,25 @@
+<resources>
+    <color name="pet_background">#F8F8F5</color>
+    <color name="pet_foreground">#252A2B</color>
+    <color name="pet_secondary">#596164</color>
+    <style name="Theme.PleosMate.MotionPreview" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#516E82</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">#516E82</item>
+        <item name="android:windowBackground">@color/pet_background</item>
+        <item name="android:statusBarColor">@color/pet_background</item>
+        <item name="android:navigationBarColor">@color/pet_background</item>
+    </style>
+    <string name="pet_title">나의 동료</string>
+    <string name="pet_level_demo">Lv. 3 · 40 / 100 XP · 시안 수치</string>
+    <string name="pet_description">작은 공간에서 천천히 숨쉬고 가끔 눈을 깜빡이는 동료</string>
+    <string name="pet_hello">오늘도 함께할까?</string>
+    <string name="pet_paused">사용이 허용되면 다시 만나요</string>
+    <string name="pet_greet">다시 인사하기</string>
+    <string name="pet_preview_idle">기본</string>
+    <string name="pet_preview_running">달리기 방향 · 연속 모션</string>
+    <string name="pet_restrict">주행 제한 상태 체험 · 시연</string>
+    <string name="pet_resume">사용 허용 상태로 복귀 · 시연</string>
+    <string name="pet_motion_description">작은 숨쉬기 · 눈 깜빡임 · 어깨에 붙은 손 인사 · 연속 달리기</string>
+    <string name="pet_motion_notice">곰·토끼는 6방향 2.5D 모션, 도트 동료는 좌우 이동 스프라이트로 표현해요. 구름·씨앗·로봇은 걷기와 달리기 프레임이 달라요. 주차 중 감상용이며 주행 중 화면 표시는 플랫폼 정책 검토 및 검증 대기 상태입니다. 제한 체험은 수동 시연입니다.</string>
+</resources>
