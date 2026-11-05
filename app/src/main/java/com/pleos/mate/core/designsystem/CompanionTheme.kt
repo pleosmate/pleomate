@@ -71,8 +71,8 @@ internal fun CompanionTheme(content: @Composable () -> Unit) {
     )
     MaterialTheme(colorScheme = colors, typography = typography, shapes = shapes) {
         CompositionLocalProvider(
-            androidx.compose.material3.LocalRippleConfiguration provides null,
-            androidx.compose.foundation.LocalIndication provides NoRippleIndication,
+            androidx.compose.material3.LocalRippleConfiguration provides androidx.compose.material3.RippleConfiguration(),
+            androidx.compose.foundation.LocalIndication provides androidx.compose.material3.ripple(),
             LocalContentColor provides colors.onSurface,
             LocalTextStyle provides typography.bodyMedium,
             content = content
@@ -84,10 +84,3 @@ private fun TextStyle.withFont(fontFamily: FontFamily): TextStyle = copy(
     fontFamily = fontFamily,
     color = Color.Unspecified
 )
-
-private object NoRippleIndication : androidx.compose.foundation.IndicationNodeFactory {
-    override fun equals(other: Any?): Boolean = other === this
-    override fun hashCode(): Int = System.identityHashCode(this)
-    override fun create(interactionSource: androidx.compose.foundation.interaction.InteractionSource):
-        androidx.compose.ui.node.DelegatableNode = object : Modifier.Node() {}
-}

@@ -48,10 +48,13 @@ internal fun CompanionApp(model: CompanionAppViewModel, journeys: JourneyViewMod
     CompanionTheme {
         Box(Modifier.fillMaxSize().background(Brush.verticalGradient(background))) {
             val showBottomBar = state.characterId != null && !state.choosing
-            Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
+            BoxWithConstraints(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
+                val viewportHeight = maxHeight
+                val compact = maxWidth < 600.dp
+                val horizontalPadding = if (compact) 16.dp else 32.dp
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                     Column(
-                        Modifier.widthIn(max = 980.dp).fillMaxWidth()
+                        Modifier.widthIn(max = if (state.tab == AppTab.HOME && !state.choosing) 1600.dp else 1200.dp).fillMaxWidth()
                             .verticalScroll(if (state.choosing) homeScroll else when (state.tab) {
                                 AppTab.HOME -> homeScroll
                                 AppTab.MISSIONS -> missionScroll
@@ -59,7 +62,7 @@ internal fun CompanionApp(model: CompanionAppViewModel, journeys: JourneyViewMod
                                 AppTab.SETTINGS -> settingsScroll
                                 AppTab.DEVELOPER -> toolsScroll
                             })
-                            .padding(start = 36.dp, end = 36.dp, top = 24.dp, bottom = if (showBottomBar) 168.dp else 24.dp),
+                            .padding(start = horizontalPadding, end = horizontalPadding, top = 24.dp, bottom = if (showBottomBar) 132.dp else 24.dp),
                         verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
                         if (state.choosing) CharacterSelectionScreen(
@@ -72,7 +75,7 @@ internal fun CompanionApp(model: CompanionAppViewModel, journeys: JourneyViewMod
                             AppTab.HOME -> CompanionHome(state.character, session, journeys, reconnect,
                                 { onAction(AppAction.SelectTab(AppTab.MISSIONS)) },
                                 { onAction(AppAction.SelectTab(AppTab.COLLECTION)) },
-                                { onAction(AppAction.OpenCharacterSelection) }, state.petName)
+                                { onAction(AppAction.OpenCharacterSelection) }, state.petName, viewportHeight)
                             AppTab.MISSIONS -> MissionCatalog(session, { onAction(AppAction.Back) }, session::startMission)
                             AppTab.COLLECTION -> CollectionScreen(session, journeys)
                             AppTab.SETTINGS -> CompanionSettings(session, journeys) { onAction(AppAction.Back) }

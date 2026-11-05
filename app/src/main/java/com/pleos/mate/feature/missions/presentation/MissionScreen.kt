@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,6 +30,7 @@ import com.pleos.mate.feature.missions.domain.vehicleMissions
 
 @Composable
 internal fun MissionCatalog(session: CompanionSession, onBack: () -> Unit, onStartWind: () -> Unit) {
+    var section by rememberSaveable { mutableStateOf(0) }
     val completed = session.progress.hasDailyWind()
     val enabled = session.parkedAndAllowed
     val todayKey = MissionSchedule.today()
@@ -41,6 +43,12 @@ internal fun MissionCatalog(session: CompanionSession, onBack: () -> Unit, onSta
         TextButton(onClick = onBack, modifier = Modifier.heightIn(min = 52.dp)) { Text("‹  홈으로") }
         Text("차량 미션", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text("일일·주간·한 번만 달성하는 미션으로 동료와 함께 성장해요.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            listOf("차와 함께", "기억 남기기", "차량 알아보기").forEachIndexed { index, label ->
+                FilterChip(selected = section == index, onClick = { section = index }, label = { Text(label) })
+            }
+        }
+        if (section == 0) {
         Text("오늘의 미션 · 하루 한 번", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         MissionItem(
             title = "운전석 문 닫힘 확인",
@@ -88,14 +96,17 @@ internal fun MissionCatalog(session: CompanionSession, onBack: () -> Unit, onSta
                 onClick = { session.cancelMission("다음에 함께해도 괜찮아요.") }, modifier = Modifier.fillMaxWidth().testTag("cancel_wind_mission")
             ) { Text(stringResource(R.string.home_mission_later)) }
         }
-        ExperienceMissions(session)
+        }
+        if (section == 1) ExperienceMissions(session)
+        if (section == 2) {
         Text("지원 차량 미션 · 첫 달성", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Text("에뮬레이터에서 완료를 확인한 차량 정보 미션이에요. 현재 차량이 기능을 지원하지 않으면 보상하지 않아요.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("내 차의 기능을 알아보세요. 지원 여부는 차량에 따라 달라요.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         vehicleMissions.forEach { item ->
             val done = item.id in session.progress.completedVehicleMissions
             MissionItem(item.title, if (session.hasSeenGuide(item.id)) "이전에 확인한 기능이에요. 현재 상태를 다시 확인하거나 설명을 다시 볼 수 있어요." else item.detail, if (done) "+5 XP 획득 완료" else "+5 XP · 최초 1회",
                 if (done) "완료" else "차량 조회", enabled = enabled && session.loaded && !busy && !session.vehicleMissionSaving && !session.experienceSaving && !session.memorySaving,
                 onClick = { session.startVehicleMission(item.id) }, buttonLabel = if (done) "다시 조회" else "차량 정보 확인", buttonTag = "vehicle_mission_${item.id}", icon = vehicleMissionIcon(item.id))
+        }
         }
         vehicleMissions.find { it.id == session.vehicleMissionId }?.let { item ->
             val done = item.id in session.progress.completedVehicleMissions

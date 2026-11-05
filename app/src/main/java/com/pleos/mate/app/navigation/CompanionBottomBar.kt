@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,8 +43,11 @@ internal fun CompanionBottomBar(
     onSelect: (AppTab) -> Unit,
     onOpenCompanion: () -> Unit
 ) {
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+    val compact = maxWidth < 480.dp
+    val itemWidth = if (compact) 48.dp else 58.dp
     Row(
-        Modifier.fillMaxWidth().padding(horizontal = 26.dp, vertical = 16.dp),
+        Modifier.fillMaxWidth().padding(horizontal = if (compact) 8.dp else 26.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -58,7 +62,7 @@ internal fun CompanionBottomBar(
             tonalElevation = 0.dp,
             shadowElevation = 0.dp
         ) {
-            Row(Modifier.padding(10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(Modifier.padding(if (compact) 6.dp else 10.dp), horizontalArrangement = Arrangement.spacedBy(if (compact) 2.dp else 12.dp)) {
                 val tabs = buildList {
                     add(Glyph.Home to "홈")
                     add(Glyph.Missions to "미션")
@@ -69,7 +73,7 @@ internal fun CompanionBottomBar(
                 tabs.forEachIndexed { index, (icon, label) ->
                     val active = selectedTab == AppTab.entries[index]
                     Surface(
-                        modifier = Modifier.size(width = 58.dp, height = 64.dp),
+                        modifier = Modifier.size(width = itemWidth, height = 56.dp),
                         shape = RoundedCornerShape(50),
                         color = if (active) Color.White.copy(alpha = 0.12f) else Color.Transparent
                     ) {
@@ -87,7 +91,8 @@ internal fun CompanionBottomBar(
             }
         }
         Surface(
-            modifier = Modifier.padding(start = 16.dp).size(88.dp)
+            modifier = Modifier.padding(start = if (compact) 8.dp else 16.dp).size(if (compact) 60.dp else 80.dp)
+                .semantics { contentDescription = "동료 선택" }
                 .clip(RoundedCornerShape(50))
                 .background(Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.3f), Color.White.copy(alpha = 0.2f))), RoundedCornerShape(50))
                 .clickable(
@@ -107,4 +112,4 @@ internal fun CompanionBottomBar(
         }
     }
 }
-
+}

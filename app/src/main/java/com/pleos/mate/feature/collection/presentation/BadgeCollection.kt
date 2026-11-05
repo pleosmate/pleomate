@@ -69,7 +69,7 @@ internal fun BadgeCollection(progress: GrowthProgress, archive: JourneyArchive) 
             Text("$earnedCount / ${badges.size}", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         }
         BoxWithConstraints(Modifier.fillMaxWidth()) {
-            val columns = if (maxWidth >= 720.dp) 3 else 2
+            val columns = when { maxWidth >= 1000.dp -> 4; maxWidth >= 680.dp -> 3; else -> 2 }
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 badges.chunked(columns).forEach { row ->
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -124,7 +124,7 @@ private fun BadgeTile(badge: CompanionBadge, modifier: Modifier = Modifier, onCl
     Column(
         modifier.fillMaxWidth().companionCardBackground().clickable(
             interactionSource = remember { MutableInteractionSource() },
-            indication = null,
+            indication = androidx.compose.material3.ripple(),
             onClick = onClick
         ).padding(vertical = 14.dp, horizontal = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -135,7 +135,7 @@ private fun BadgeTile(badge: CompanionBadge, modifier: Modifier = Modifier, onCl
                 contentDescription = badge.title,
                 modifier = Modifier.size(112.dp).alpha(if (badge.earned) 1f else 0.28f)
             )
-            Text(badge.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Text(badge.title, textAlign = androidx.compose.ui.text.style.TextAlign.Center, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             Text(
                 if (badge.earned) "획득 완료" else "잠김 · 눌러서 확인",
                 color = if (badge.earned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,

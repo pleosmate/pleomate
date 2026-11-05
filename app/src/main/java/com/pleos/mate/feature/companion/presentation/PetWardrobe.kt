@@ -24,6 +24,10 @@ internal fun PetWardrobe(session: CompanionSession, journeys: JourneyViewModel) 
     val character = session.character
     val previewLevel = if (appearancePreview == 0) session.progress.level else appearancePreview
     session.decorationRevision
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val wide = maxWidth >= 840.dp
+        val preview: @Composable () -> Unit = {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
     PetStage(character, active = session.parkedAndAllowed,
         running = previewGait == 2 && session.parkedAndAllowed, walking = previewGait == 1 && session.parkedAndAllowed,
         previewMotion = previewMotion, previewRequest = previewRequest,
@@ -57,6 +61,10 @@ internal fun PetWardrobe(session: CompanionSession, journeys: JourneyViewModel) 
         }
     }
     Text("달리기는 주차 중 감상하는 모션이에요. 차량 주행 중 표시 기능은 검토 중이에요.")
+            }
+        }
+        val decorations: @Composable () -> Unit = {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
     Text("동료 꾸미기", style = MaterialTheme.typography.titleLarge)
     Text("미션과 기억으로 얻은 소품이에요. 곰과 토끼가 함께 사용할 수 있어요.")
     if (character.isPixel) {
@@ -64,7 +72,20 @@ internal fun PetWardrobe(session: CompanionSession, journeys: JourneyViewModel) 
     } else PetDecorationOptions("의상", PetCollection.outfits, session.outfit, session.parkedAndAllowed,
         { PetCollection.outfitUnlocked(it, session.progress, memories) }) { session.selectDecoration("outfit", it) }
     PetDecorationOptions("공간", PetCollection.rooms, session.room, session.parkedAndAllowed,
-        { PetCollection.roomUnlocked(it, session.progress, memories) }) { session.selectDecoration("room", it) }
+        { PetCollection.roomUnlocked(it, session.progress, memories) }) { session.selectDecoration("room", it) }            }
+        }
+        if (wide) {
+            Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                Box(Modifier.weight(1f)) { preview() }
+                Box(Modifier.weight(1f)) { decorations() }
+            }
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                preview()
+                decorations()
+            }
+        }
+    }
 }
 
 @Composable

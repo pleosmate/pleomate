@@ -32,9 +32,10 @@ import com.pleos.mate.core.pet.presentation.labelResource
 @Composable
 internal fun CharacterOptions(selected: PetCharacter, enabled: Boolean, level: Int, onSelect: (PetCharacter) -> Unit) {
     BoxWithConstraints(Modifier.fillMaxWidth().selectableGroup()) {
-        if (maxWidth >= 600.dp) {
+        val columns = if (maxWidth >= 760.dp) 3 else 2
+        if (maxWidth >= 360.dp) {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                PetCharacter.entries.chunked(3).forEach { characters ->
+                PetCharacter.entries.chunked(columns).forEach { characters ->
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         characters.forEach { character ->
                             Box(Modifier.weight(1f)) { CharacterOption(character, selected == character, enabled, level, onSelect) }
@@ -57,7 +58,7 @@ private fun CharacterOption(character: PetCharacter, selected: Boolean, enabled:
             .companionCardBackground()
             .border(2.dp, if (selected) Color.White.copy(alpha = 0.9f) else Color.Transparent, RoundedCornerShape(26.dp))
             .selectable(selected = selected, enabled = enabled, role = Role.RadioButton, onClick = { onSelect(character) })
-            .padding(20.dp),
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
             // Static thumbnails; only the confirmed companion animates on the home screen.

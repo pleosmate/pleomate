@@ -37,9 +37,21 @@ internal fun CompanionSettings(session: CompanionSession, journeys: JourneyViewM
     LaunchedEffect(canReset) { if (!canReset) confirming = false }
     TextButton(onClick = onBack) { Text("‹ 홈으로") }
     Text("설정", style = MaterialTheme.typography.headlineMedium)
-    PetWardrobe(session, journeys)
-    TextButton(onClick = { session.updateReactionVoiceEnabled(!session.reactionVoiceEnabled) }, enabled = session.parkedAndAllowed) {
-        Text("동료 반응 음성 · " + if (session.reactionVoiceEnabled) "켜짐" else "꺼짐")
+    var wardrobe by rememberSaveable { mutableStateOf(false) }
+    OutlinedButton(onClick = { wardrobe = !wardrobe }, modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp)) {
+        Text(if (wardrobe) "동료 꾸미기 접기" else "동료 꾸미기 · 성장 모습 보기")
+    }
+    if (wardrobe) PetWardrobe(session, journeys)
+    androidx.compose.foundation.layout.Row(
+        Modifier.fillMaxWidth().companionCardBackground().padding(20.dp),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text("동료 반응 음성", style = MaterialTheme.typography.titleMedium)
+            Text("동료의 반응을 목소리로 들어요.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        androidx.compose.material3.Switch(checked = session.reactionVoiceEnabled,
+            onCheckedChange = session::updateReactionVoiceEnabled, enabled = session.parkedAndAllowed)
     }
     OutlinedButton(onClick = { session.previewPetReaction(); onBack() }, enabled = session.parkedAndAllowed) {
         Text("홈에서 말풍선 미리보기")

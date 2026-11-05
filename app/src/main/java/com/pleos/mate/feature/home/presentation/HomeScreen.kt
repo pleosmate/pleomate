@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import com.pleos.mate.R
 import com.pleos.mate.core.designsystem.CompanionGlyphIcon
 import com.pleos.mate.core.designsystem.FlatCard
@@ -55,7 +57,7 @@ import com.pleos.mate.feature.companion.presentation.session.CompanionSession
 import com.pleos.mate.feature.journey.presentation.JourneyViewModel
 
 @Composable
-internal fun CompanionHome(character: PetCharacter, session: CompanionSession, journeys: JourneyViewModel, reconnect: () -> Unit, onOpenMissions: () -> Unit, onOpenCollection: () -> Unit, onChange: () -> Unit, petName: String) {
+internal fun CompanionHome(character: PetCharacter, session: CompanionSession, journeys: JourneyViewModel, reconnect: () -> Unit, onOpenMissions: () -> Unit, onOpenCollection: () -> Unit, onChange: () -> Unit, petName: String, viewportHeight: Dp) {
     val context = LocalContext.current
     val progress = session.progress
     val celebrationId = session.celebration
@@ -69,9 +71,13 @@ internal fun CompanionHome(character: PetCharacter, session: CompanionSession, j
         progress.canReuniteWithWind -> R.string.wind_reunion_hello
         else -> R.string.pet_home_hello
     }
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+    val compact = maxWidth < 600.dp
+    val wide = maxWidth >= 840.dp
+    val petHeight = (viewportHeight * if (wide) 0.52f else 0.4f).coerceIn(240.dp, if (wide) 620.dp else 400.dp)
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(20.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text(petName.ifBlank { stringResource(R.string.companion_home_title) }, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold))
+            Text(petName.ifBlank { stringResource(R.string.companion_home_title) }, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurface, style = (if (compact) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineLarge).copy(fontWeight = FontWeight.Bold))
             if (session.parkedAndAllowed) Text(stringResource(R.string.home_parked), style = MaterialTheme.typography.labelLarge)
             IconButton(onClick = onChange, enabled = session.parkedAndAllowed,
                 modifier = Modifier.size(56.dp).testTag("change_character")) {
@@ -80,11 +86,11 @@ internal fun CompanionHome(character: PetCharacter, session: CompanionSession, j
         }
         if (session.loaded) {
             val floor = progress.levelStartXp
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Lv. ${progress.level} · ${PetCollection.stage(progress.level)}", color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.titleLarge)
                 LinearProgressIndicator(
                     progress = { ((progress.totalXp - floor).toFloat() / (progress.nextLevelXp - floor).coerceAtLeast(1)).coerceIn(0f, 1f) },
-                    modifier = Modifier.weight(1f).height(8.dp),
+                    modifier = Modifier.fillMaxWidth().height(8.dp),
                     trackColor = Color.White.copy(alpha = 0.16f)
                 )
                 Text("${progress.totalXp} / ${progress.nextLevelXp} XP", modifier = Modifier.testTag("growth_progress"), color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -96,7 +102,9 @@ internal fun CompanionHome(character: PetCharacter, session: CompanionSession, j
                 TextButton(onClick = reconnect, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.home_reconnect)) }
             }
         }
-        FlatCard(Modifier.fillMaxWidth().height(450.dp).testTag("home_character")) {
+        val petContent: @Composable () -> Unit = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        FlatCard(Modifier.fillMaxWidth().height(petHeight).testTag("home_character")) {
             Box(
                 Modifier.fillMaxSize().clickable(
                     enabled = session.parkedAndAllowed,
@@ -140,6 +148,10 @@ internal fun CompanionHome(character: PetCharacter, session: CompanionSession, j
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
+            }
+        }
+        val activityContent: @Composable () -> Unit = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         val busy = session.mission in setOf(CompanionSession.Mission.CHECKING, CompanionSession.Mission.WAITING, CompanionSession.Mission.VERIFYING, CompanionSession.Mission.SAVING) ||
             session.dailyDoorCheck == CompanionSession.DailyDoorCheck.CHECKING
         FlatCard(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
@@ -172,7 +184,16 @@ internal fun CompanionHome(character: PetCharacter, session: CompanionSession, j
                 Text(stringResource(R.string.home_mission_later))
             }
         }
-        Box(Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.outlineVariant))
+        if (session.loaded) {
+            val memoryCount = progress.companionMemories.size + journeys.archive.memories.size + if (progress.windMemoryAt != null) 1 else 0
+            FlatCard(Modifier.fillMaxWidth()) {
+                Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("함께 쌓은 순간", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(if (memoryCount > 0) "지금까지 기억 ${memoryCount}개를 함께 남겼어요." else "첫 경험을 남기면 여기에 함께한 순간이 쌓여요.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("다음 성장까지 ${ (progress.nextLevelXp - progress.totalXp).coerceAtLeast(0) } XP", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+                }
+            }
+        }
         FlatCard(Modifier.fillMaxWidth()) {
             Row(
                 Modifier.fillMaxWidth().clickable(
@@ -183,12 +204,22 @@ internal fun CompanionHome(character: PetCharacter, session: CompanionSession, j
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(stringResource(R.string.memory_section), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.memory_section), modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("기억 남기기", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("도감 보기", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     CompanionGlyphIcon(Glyph.ChevronRight, Modifier.size(20.dp))
                 }
             }
+        }            }
+        }
+        if (wide) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(28.dp)) {
+                Box(Modifier.weight(1.15f)) { petContent() }
+                Box(Modifier.weight(1f)) { activityContent() }
+            }
+        } else {
+            petContent()
+            activityContent()
         }
     }
     if (session.levelUpMessage != null && session.parkedAndAllowed) AlertDialog(
@@ -205,4 +236,4 @@ internal fun CompanionHome(character: PetCharacter, session: CompanionSession, j
         }) { Text("성장 모션 보기") } }
     )
 }
-
+}

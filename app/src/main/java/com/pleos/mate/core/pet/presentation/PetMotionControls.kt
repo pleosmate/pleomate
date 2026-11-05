@@ -7,7 +7,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.Alignment
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,9 +26,10 @@ import com.pleos.mate.core.pet.model.PetMotionRules
 @Composable
 internal fun PetMotionControls(level: Int, enabled: Boolean, expanded: Boolean, onToggle: () -> Unit, onPlay: (PetMotion) -> Unit) {
     Box {
-        Surface(shape = CircleShape, color = Color.White.copy(alpha = 0.08f), border = BorderStroke(1.dp, Color.White.copy(alpha = 0.22f))) {
-            IconButton(onClick = onToggle, enabled = enabled, modifier = Modifier.size(48.dp).testTag("pet_motion_controls")) {
-                Icon(painterResource(R.drawable.ic_motion_smile), contentDescription = if (expanded) "성장 모션 접기" else "성장 모션 펼치기", modifier = Modifier.size(26.dp))
+        TextButton(onClick = onToggle, enabled = enabled, modifier = Modifier.testTag("pet_motion_controls")) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Icon(painterResource(R.drawable.ic_motion_smile), contentDescription = null, modifier = Modifier.size(22.dp))
+                Text("함께 놀기")
             }
         }
         DropdownMenu(expanded = expanded, onDismissRequest = onToggle) {
