@@ -50,17 +50,47 @@ internal val explorationPlaces = listOf(
 )
 
 @Composable
-internal fun SouvenirImage(region: String, modifier: Modifier = Modifier, discovered: Boolean = true) {
+internal fun SouvenirImage(region: String, modifier: Modifier = Modifier, discovered: Boolean = true, slot: Int = 0, variantKey: String = region) {
     val index = explorationPlaces.indexOfFirst { it.region == region }
     if (index < 0) return
     val sheet = ImageBitmap.imageResource(R.drawable.exploration_souvenirs_v1)
-    Canvas(modifier) {
+    val silhouette = when (slot) { 1 -> "pixel gate"; 2 -> "pixel bottle"; 3 -> "pixel flower charm"; else -> null }
+    Canvas(modifier.then(if (silhouette == null) Modifier else Modifier.semantics { contentDescription = silhouette })) {
         val cellWidth = sheet.width / 4
         val cellHeight = sheet.height / 4
         drawImage(sheet, srcOffset = IntOffset(index % 4 * cellWidth, index / 4 * cellHeight),
             srcSize = IntSize(cellWidth, cellHeight), dstSize = IntSize(size.width.toInt(), size.height.toInt()),
             alpha = if (discovered) 1f else .62f,
             colorFilter = if (discovered) null else ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) }))
+        if (slot in 1..3) {
+            val ink = Color(0xFF493C36)
+            val accent = listOf(Color(0xFFF6C85F), Color(0xFF79C8B0), Color(0xFFF28B73), Color(0xFFB8A0E2), Color(0xFF88B9E8))[
+                (variantKey.hashCode() and Int.MAX_VALUE) % 5]
+            val u = size.width / 12f
+            val rect = { x: Int, y: Int, w: Int, h: Int, color: Color ->
+                drawRect(color, Offset(x * u, y * u), Size(w * u, h * u))
+            }
+            when (slot) {
+                1 -> { // little gate
+                    rect(3, 3, 6, 2, ink); rect(2, 5, 2, 5, ink); rect(8, 5, 2, 5, ink)
+                    rect(4, 5, 4, 4, accent); rect(5, 7, 2, 3, ink)
+                }
+                2 -> { // keepsake bottle
+                    rect(5, 2, 2, 2, ink); rect(4, 4, 4, 1, ink); rect(3, 5, 6, 5, ink)
+                    rect(4, 6, 4, 3, accent); rect(5, 6, 2, 1, Color(0xFFFFF2C2))
+                }
+                3 -> { // flower charm
+                    rect(5, 5, 2, 2, accent); rect(5, 2, 2, 3, ink); rect(5, 7, 2, 3, ink)
+                    rect(2, 5, 3, 2, ink); rect(7, 5, 3, 2, ink)
+                    rect(3, 5, 2, 2, accent); rect(7, 5, 2, 2, accent); rect(5, 8, 2, 2, Color(0xFF62966D))
+                }
+            }
+            // A tiny deterministic pixel ornament makes nearby neighborhoods distinct.
+            val ornament = variantKey.hashCode().ushr(4) % 3
+            rect(1 + ornament, 1, 1, 1, accent)
+            rect(10 - ornament, 2, 1, 1, Color(0xFFFFF2C2))
+            if (!discovered) drawRect(Color(0xFF69716A).copy(alpha = .55f), Offset.Zero, size)
+        }
     }
 }
 

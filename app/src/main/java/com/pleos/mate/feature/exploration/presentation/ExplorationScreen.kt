@@ -86,7 +86,7 @@ internal fun ExplorationScreen(session: CompanionSession) {
                             (1..3).forEach { slot ->
                                 val found = records.any { it.split('|')[1] == slot.toString() }
                                 Column(Modifier.weight(1f).background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(16.dp)).padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                    SouvenirImage(area.province, Modifier.size(48.dp), found)
+                                    SouvenirImage(area.province, Modifier.size(48.dp).testTag("neighborhood_souvenir_$slot"), found, slot, area.id)
                                     Text(if (found) listOf("첫 만남", "다시 만남", "소중한 추억")[slot - 1] else "? · $slot", style = MaterialTheme.typography.labelMedium)
                                 }
                             }
@@ -142,8 +142,27 @@ internal fun ExplorationScreen(session: CompanionSession) {
             PetStage(session.character, active = session.parkedAndAllowed, level = session.progress.level,
                 outfit = session.outfit, modifier = Modifier.size(96.dp))
         }
-        GeographicExplorationMap { selected = it }
-        discovery()
+        ExplorationAdaptiveLayout(
+            map = { compact, modifier -> GeographicExplorationMap(compact = compact, modifier = modifier) { selected = it } },
+            details = discovery
+        )
         Text("행정구역 자료: 통계청 SGIS · 가공 vuski/admdongkor · CC BY 4.0 · 2026.10", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+@Composable
+internal fun ExplorationAdaptiveLayout(map: @Composable (Boolean, Modifier) -> Unit, details: @Composable () -> Unit) {
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        if (maxWidth >= 720.dp) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp), verticalAlignment = Alignment.Top) {
+                map(false, Modifier.weight(1.15f))
+                Box(Modifier.weight(.85f)) { details() }
+            }
+        } else {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                map(true, Modifier.fillMaxWidth())
+                details()
+            }
+        }
     }
 }
