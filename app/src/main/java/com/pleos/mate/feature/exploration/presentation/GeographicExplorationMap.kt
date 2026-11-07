@@ -86,7 +86,7 @@ internal fun GeographicExplorationMap(compact: Boolean = false, modifier: Modifi
         Text(when { district != null -> "동네를 눌러 조각을 살펴보세요"; province != null -> "시·군·구를 눌러 더 가까이 볼까요?"; else -> "지역을 눌러 가까이 볼까요?" }, style = MaterialTheme.typography.bodySmall)
         if (province != null) TextButton(onClick = { loading = true; areas = emptyList(); if (district != null) district = null else province = null; onNeighborhood(null) }) { Text("← 이전 지도") }
         if (loading || areas.isEmpty()) {
-            Box(Modifier.fillMaxWidth().height(if (compact) 260.dp else 400.dp), contentAlignment = androidx.compose.ui.Alignment.Center) { CircularProgressIndicator() }
+            Box(Modifier.fillMaxWidth().height(if (compact) 320.dp else 400.dp), contentAlignment = androidx.compose.ui.Alignment.Center) { CircularProgressIndicator() }
         } else {
             key(province?.id, district?.id) { AreaCanvas(areas, ::select, compact) }
         }
@@ -146,7 +146,7 @@ private fun AreaCanvas(areas: List<Area>, onSelect: (Area) -> Unit, compact: Boo
                     (pan.y + amount.y).coerceIn(-size.height * (zoom - 1f) / 2, size.height * (zoom - 1f) / 2))
             }
         } else Modifier
-        Canvas(Modifier.fillMaxWidth().aspectRatio(1.15f).then(if (compact) Modifier.heightIn(max = 260.dp) else Modifier).clip(RoundedCornerShape(26.dp)).background(Color(0xFFCDEBE7))
+        Canvas(Modifier.fillMaxWidth().aspectRatio(1.15f).then(if (compact) Modifier.heightIn(max = 320.dp) else Modifier).clip(RoundedCornerShape(26.dp)).background(Color(0xFFCDEBE7))
             .testTag("exploration_area_canvas").semantics { customActions = areas.map { area -> CustomAccessibilityAction(area.name) { onSelect(area); true } } }
             .then(drag).pointerInput(areas, zoom, pan, textSize) { detectTapGestures { tap ->
                 val layout = mapLayout(areas, size.width.toFloat(), size.height.toFloat(), zoom, pan, textSize, padding)
