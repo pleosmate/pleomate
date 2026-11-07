@@ -1,0 +1,12 @@
+시도 행정경계 자료: 통계청 통계지리정보서비스(SGIS, https://sgis.kostat.go.kr/) 원자료, 공공누리 제1유형(출처표시).
+가공: vuski/admdongkor, https://github.com/vuski/admdongkor, 데이터 라이선스 CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
+원본: https://github.com/vuski/admdongkor/blob/master/parquet/sido_20261001.parquet
+기준일: 2026-10-01. 변경: EPSG:5179에서 EPSG:4326으로 좌표계 변환, 코드·이름·경계만 포함하는 GeoJSON 생성.
+통계용 경계로 법적 경계 판정에 사용할 수 없습니다.
+
+화면 표시용 provinces-display.json은 위 GeoJSON의 좌표를 간략화하고 소수점 네 자리로 반올림한 파생 자료입니다. 위치 판정에는 원본 정밀 경계를 사용합니다.
+
+시군구·읍면동 경계: 같은 출처의 sgg_20261001.parquet 및 emd_20261001.parquet (CC BY 4.0).
+https://github.com/vuski/admdongkor/blob/master/parquet/sgg_20261001.parquet
+https://github.com/vuski/admdongkor/blob/master/parquet/emd_20261001.parquet
+기준일 2026-10-01. EPSG:5179에서 5m 간략화 후 EPSG:4326 변환 및 소수점 여섯 자리 반올림. 위치 판정은 경계 50m 이내를 제외합니다.

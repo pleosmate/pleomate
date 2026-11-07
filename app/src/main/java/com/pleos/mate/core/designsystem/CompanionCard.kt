@@ -11,23 +11,25 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+@Composable
 internal fun Modifier.companionCardBackground(): Modifier {
-    val shape = RoundedCornerShape(26.dp)
-    return clip(shape).background(Color.White.copy(alpha = 0.06f))
+    val shape = RoundedCornerShape(30.dp)
+    return clip(shape).background(MaterialTheme.colorScheme.surfaceContainerLow)
+        .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f), shape)
 }
 
 @Composable
 internal fun Modifier.companionDialogBorder(): Modifier =
-    border(1.dp, Color.White.copy(alpha = 0.28f), MaterialTheme.shapes.extraLarge)
+    border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), MaterialTheme.shapes.extraLarge)
 
 @Composable
 internal fun companionTextFieldColors() = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-    focusedContainerColor = Color.White.copy(alpha = 0.07f),
-    unfocusedContainerColor = Color.White.copy(alpha = 0.04f),
-    disabledContainerColor = Color.White.copy(alpha = 0.02f),
-    focusedBorderColor = Color.White.copy(alpha = 0.55f),
-    unfocusedBorderColor = Color.White.copy(alpha = 0.22f),
-    disabledBorderColor = Color.White.copy(alpha = 0.10f),
+    focusedContainerColor = MaterialTheme.colorScheme.surface,
+    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+    focusedBorderColor = MaterialTheme.colorScheme.primary,
+    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+    disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
     focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
     unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
     cursorColor = MaterialTheme.colorScheme.onSurface

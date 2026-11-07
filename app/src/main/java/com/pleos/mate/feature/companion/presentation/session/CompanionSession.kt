@@ -164,14 +164,85 @@ class CompanionSession(
     init {
         growthRepository.read { result ->
             result.onSuccess { saved ->
+                val previous = context.getSharedPreferences("exploration", 0).getStringSet("regions", emptySet()).orEmpty()
                 progress = saved
                 loaded = true
+                if (previous.isNotEmpty()) migrateExploredRegions(previous)
                 if (active) startAutomaticWindObservation()
                 maybeAutoCheckDailyDoor()
                 maybeCompleteAutomaticWind()
             }.onFailure {
                 message = "성장 기록을 읽을 수 없어요. 저장 공간을 확인한 뒤 앱을 다시 열어주세요."
                 mission = Mission.ERROR
+            }
+        }
+    }
+
+    private var explorationSaving by mutableStateOf(false)
+
+    private fun migrateExploredRegions(regions: Set<String>) {
+        if (explorationSaving) return
+        explorationSaving = true
+        val next = progress.copy(exploredRegions = progress.exploredRegions + regions)
+        growthRepository.save(next) { result ->
+            result.onSuccess {
+                applyProgress(next)
+                context.getSharedPreferences("exploration", 0).edit().remove("regions").apply()
+            }
+            explorationSaving = false
+        }
+    }
+
+    internal fun saveExploration(region: String, stillValid: () -> Boolean, done: (String) -> Unit) {
+        if (!active || !loaded || !parkedAndAllowed || growthBusy()) {
+            done("주차 상태와 저장 작업을 확인한 뒤 다시 시도해 주세요.")
+            return
+        }
+        if (region in progress.exploredRegions) {
+            done("이미 발견한 지역이에요. 첫 발견 보상은 한 번만 받아요.")
+            return
+        }
+        explorationSaving = true
+        parking.verify { allowed ->
+            if (!allowed || !active || !stillValid()) {
+                explorationSaving = false
+                done("주차 상태가 바뀌었어요. 주차 후 다시 확인해 주세요.")
+                return@verify
+            }
+            val next = progress.copy(exploredRegions = progress.exploredRegions + region)
+            growthRepository.save(next) { result ->
+                result.onSuccess {
+                    applyProgress(next)
+                    done("${region} 발견! 기념 조각과 +5 XP를 받았어요.")
+                }.onFailure { done("저장하지 못했어요. 다시 시도해 주세요.") }
+                explorationSaving = false
+            }
+        }
+    }
+
+    internal fun collectExploration(areaId: String, province: String, stillValid: () -> Boolean, done: (String) -> Unit) {
+        if (!active || !loaded || !parkedAndAllowed || growthBusy()) {
+            done("주차 상태와 저장 작업을 확인한 뒤 다시 시도해 주세요.")
+            return
+        }
+        explorationSaving = true
+        parking.verify { allowed ->
+            val today = java.time.LocalDate.now().toString()
+            val slot = progress.nextExplorationSouvenir(areaId, today)
+            if (!allowed || !active || !stillValid() || slot == null) {
+                explorationSaving = false
+                done(if (slot == null) "오늘은 이미 조각을 모았거나 모든 조각을 모았어요." else "위치나 주차 상태를 다시 확인해 주세요.")
+                return@verify
+            }
+            val newProvince = province !in progress.exploredRegions
+            val next = progress.copy(exploredRegions = progress.exploredRegions + province,
+                explorationSouvenirs = progress.explorationSouvenirs + "$areaId|$slot|$today")
+            growthRepository.save(next) { result ->
+                result.onSuccess {
+                    applyProgress(next)
+                    done("기념 조각 $slot 발견! +${if (newProvince) 10 else 5} XP를 받았어요.")
+                }.onFailure { done("저장하지 못했어요. 다시 시도해 주세요.") }
+                explorationSaving = false
             }
         }
     }
@@ -281,7 +352,7 @@ class CompanionSession(
         get() = uiState.vehicleMissionMessage
         private set(value) { uiState = uiState.copy(vehicleMissionMessage = value) }
 
-    internal fun growthBusy() = experienceSaving || vehicleMissionSaving || memorySaving || dailyDoorCheck == DailyDoorCheck.CHECKING || automaticWindSaving ||
+    internal fun growthBusy() = explorationSaving || experienceSaving || vehicleMissionSaving || memorySaving || dailyDoorCheck == DailyDoorCheck.CHECKING || automaticWindSaving ||
         mission in setOf(Mission.CHECKING, Mission.WAITING, Mission.VERIFYING, Mission.SAVING)
 
     private fun maybeAutoCheckDailyDoor() {

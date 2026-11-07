@@ -24,6 +24,7 @@ internal class ExperienceLocationReader(context: Context) {
     private var fix: LocationData? = null
     private var destination: DestinationInfo? = null
     private var needsDestination = false
+    private var coordinatesCallback: ((Double, Double) -> Unit)? = null
     private var callback: (String?, String?) -> Unit = { _, _ -> }
     private val timeout = Runnable { finish(null, "새 위치 또는 목적지 정보를 확인하지 못했어요. 위치 공유와 내비게이션 연결을 확인해 주세요.") }
 
@@ -73,9 +74,21 @@ internal class ExperienceLocationReader(context: Context) {
         }
     }
 
+    fun readCoordinates(callback: (Double, Double) -> Unit, onError: (String) -> Unit) {
+        coordinatesCallback = callback
+        read(false) { _, error -> if (error != null) onError(error) }
+    }
+
     private fun resolve() {
         val current = fix ?: return
-        if (!needsDestination) finish("현재 위치 확인 완료 · 장소 이름만 저장하며 좌표는 저장하지 않아요.", null)
+        val coordinates = coordinatesCallback
+        if (coordinates != null) {
+            coordinatesCallback = null
+            val latitude = current.latitude
+            val longitude = current.longitude
+            cancel()
+            coordinates(latitude, longitude)
+        } else if (!needsDestination) finish("현재 위치 확인 완료 · 장소 이름만 저장하며 좌표는 저장하지 않아요.", null)
         else {
             val target = destination ?: return
             if (!ExperienceRules.near(current.latitude, current.longitude, target.latitude, target.longitude))
@@ -86,6 +99,7 @@ internal class ExperienceLocationReader(context: Context) {
 
     fun cancel() {
         active = false
+        coordinatesCallback = null
         main.removeCallbacks(timeout)
         try { locationListener?.let { fused?.unregisterFusedLocationCallback(it) } } catch (_: Exception) { }
         try { fused?.release() } catch (_: Exception) { }

@@ -14,9 +14,11 @@ data class GrowthProgress(
     val weeklyDoorBonusWeeks: Set<String> = emptySet(),
     val completedVehicleMissions: Set<String> = emptySet(),
     val companionMemories: List<CompanionMemory> = emptyList(),
-    val dailyWindDates: Set<String> = emptySet()
+    val dailyWindDates: Set<String> = emptySet(),
+    val exploredRegions: Set<String> = emptySet(),
+    val explorationSouvenirs: Set<String> = emptySet()
 ) {
-    val totalXp: Int get() = (if (windCompletedAt == null) 0 else 10) + dailyWindDates.size * 2 + dailyDoorCheckDates.size * 5 + weeklyDoorBonusWeeks.size * 15 + completedVehicleMissions.size * 5 + companionMemories.sumOf { it.kind.xp } + ExperienceRules.bonusWeeks(companionMemories).size * 15
+    val totalXp: Int get() = (exploredRegions.size + explorationSouvenirs.size) * 5 + (if (windCompletedAt == null) 0 else 10) + dailyWindDates.size * 2 + dailyDoorCheckDates.size * 5 + weeklyDoorBonusWeeks.size * 15 + completedVehicleMissions.size * 5 + companionMemories.sumOf { it.kind.xp } + ExperienceRules.bonusWeeks(companionMemories).size * 15
     val level: Int get() = when {
         totalXp < 10 -> 1
         totalXp < 30 -> 2
@@ -37,6 +39,12 @@ data class GrowthProgress(
     }
     val windMemoryAt: Long? get() = windCompletedAt?.takeUnless { windMemoryHidden }
     val canReuniteWithWind: Boolean get() = windMemoryAt != null
+    fun nextExplorationSouvenir(areaId: String, date: String): Int? {
+        val records = explorationSouvenirs.filter { it.startsWith("$areaId|") }
+        if (records.any { it.substringAfterLast('|') == date }) return null
+        return (1..3).firstOrNull { slot -> records.none { it.split('|')[1] == slot.toString() } }
+    }
+
     fun hasDailyDoorCheck(dateKey: String = MissionSchedule.today()) = dateKey in dailyDoorCheckDates
     fun doorChecksThisWeek(weekKey: String = MissionSchedule.week(MissionSchedule.today())) =
         dailyDoorCheckDates.count { MissionSchedule.week(it) == weekKey }

@@ -32,7 +32,7 @@
     <string name="companion_home_title">나의 동료</string>
     <string name="pet_home_hello">오늘도 함께할까?</string>
     <string name="open_door_probe">Door SDK 검증 열기</string>
-    <string name="open_glb_probe">3D 홈 검증 열기</string>
+    <string name="open_glb_probe">3D 동료 시제품 보기</string>
     <string name="memory_section">함께한 기억</string>
     <string name="wind_memory_title">처음 함께 바람을 느낀 날</string>
     <string name="wind_memory_summary">작은 바람이 우리의 첫 기억이 됐어요.</string>

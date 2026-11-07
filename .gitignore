@@ -21,3 +21,6 @@ local.properties
 *.keystore
 .env
 .env.*
+
+# Local project-work state
+/.dryforge/

@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pleos.mate.R
+import com.pleos.mate.core.designsystem.CompanionPageHeader
 import com.pleos.mate.core.designsystem.companionTextFieldColors
 import com.pleos.mate.core.pet.model.PetCharacter
 
@@ -27,8 +28,7 @@ internal fun CharacterSelectionScreen(
     onConfirm: () -> Unit,
     onCancel: () -> Unit
 ) {
-    Text(stringResource(R.string.character_choose_title), style = MaterialTheme.typography.headlineMedium)
-    Text(stringResource(R.string.character_choose_hint))
+    CompanionPageHeader(stringResource(R.string.character_choose_title), stringResource(R.string.character_choose_hint))
     if (!allowed) {
         Text(parkingMessage)
         OutlinedButton(onClick = reconnect) { Text("차량 권한·연결 확인") }
@@ -36,7 +36,7 @@ internal fun CharacterSelectionScreen(
     CharacterOptions(selected, allowed, level, onSelect)
     OutlinedTextField(shape = RoundedCornerShape(32.dp), colors = companionTextFieldColors(),
         value = name, onValueChange = onNameChanged,
-        enabled = allowed, singleLine = true, placeholder = { Text("동료 이름 (선택)") }, modifier = Modifier.fillMaxWidth())
+        enabled = allowed, singleLine = true, label = { Text("동료 이름 (선택)") }, placeholder = { Text("어떤 이름으로 부를까요?") }, modifier = Modifier.fillMaxWidth())
     Button(enabled = allowed, onClick = onConfirm,
         modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).testTag("confirm_character")) {
         Text(stringResource(if (!changing) R.string.character_start else R.string.character_confirm))

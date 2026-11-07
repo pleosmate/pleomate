@@ -2,6 +2,7 @@ package com.pleos.mate.app
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -21,6 +22,7 @@ import com.pleos.mate.app.navigation.CompanionBottomBar
 import com.pleos.mate.core.designsystem.CompanionTheme
 import com.pleos.mate.core.pet.model.PetCharacter
 import com.pleos.mate.feature.collection.presentation.CollectionScreen
+import com.pleos.mate.feature.exploration.presentation.ExplorationScreen
 import com.pleos.mate.feature.developer.presentation.DeveloperToolsScreen
 import com.pleos.mate.feature.home.presentation.CompanionHome
 import com.pleos.mate.feature.journey.presentation.JourneyViewModel
@@ -38,10 +40,12 @@ internal fun CompanionApp(model: CompanionAppViewModel, journeys: JourneyViewMod
     val onAction = model::onAction
     val homeScroll = rememberScrollState()
     val missionScroll = rememberScrollState()
+    val explorationScroll = rememberScrollState()
     val collectionScroll = rememberScrollState()
     val settingsScroll = rememberScrollState()
     val toolsScroll = rememberScrollState()
-    val background = listOf(Color(0xFF484542), Color(0xFF484542))
+    val background = if (isSystemInDarkTheme()) listOf(Color(0xFF30443B), Color(0xFF1E2D28))
+        else listOf(Color(0xFFEDF3E9), Color(0xFFF8F6ED))
     BackHandler(enabled = (state.choosing && state.characterId != null) || (!state.choosing && state.tab != AppTab.HOME)) {
         onAction(AppAction.Back)
     }
@@ -57,12 +61,13 @@ internal fun CompanionApp(model: CompanionAppViewModel, journeys: JourneyViewMod
                         Modifier.widthIn(max = if (state.tab == AppTab.HOME && !state.choosing) 1600.dp else 1200.dp).fillMaxWidth()
                             .verticalScroll(if (state.choosing) homeScroll else when (state.tab) {
                                 AppTab.HOME -> homeScroll
+                                AppTab.EXPLORE -> explorationScroll
                                 AppTab.MISSIONS -> missionScroll
                                 AppTab.COLLECTION -> collectionScroll
                                 AppTab.SETTINGS -> settingsScroll
                                 AppTab.DEVELOPER -> toolsScroll
                             })
-                            .padding(start = horizontalPadding, end = horizontalPadding, top = 24.dp, bottom = if (showBottomBar) 132.dp else 24.dp),
+                            .padding(start = horizontalPadding, end = horizontalPadding, top = 24.dp, bottom = if (showBottomBar) 180.dp else 24.dp),
                         verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
                         if (state.choosing) CharacterSelectionScreen(
@@ -75,7 +80,9 @@ internal fun CompanionApp(model: CompanionAppViewModel, journeys: JourneyViewMod
                             AppTab.HOME -> CompanionHome(state.character, session, journeys, reconnect,
                                 { onAction(AppAction.SelectTab(AppTab.MISSIONS)) },
                                 { onAction(AppAction.SelectTab(AppTab.COLLECTION)) },
+                                { onAction(AppAction.SelectTab(AppTab.EXPLORE)) },
                                 { onAction(AppAction.OpenCharacterSelection) }, state.petName, viewportHeight)
+                            AppTab.EXPLORE -> ExplorationScreen(session)
                             AppTab.MISSIONS -> MissionCatalog(session, { onAction(AppAction.Back) }, session::startMission)
                             AppTab.COLLECTION -> CollectionScreen(session, journeys)
                             AppTab.SETTINGS -> CompanionSettings(session, journeys) { onAction(AppAction.Back) }

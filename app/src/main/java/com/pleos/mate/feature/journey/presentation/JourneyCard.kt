@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -26,6 +25,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pleos.mate.R
+import com.pleos.mate.core.designsystem.CompanionDialog
 import com.pleos.mate.core.designsystem.companionCardBackground
 import com.pleos.mate.core.designsystem.companionDialogBorder
 import com.pleos.mate.core.designsystem.companionTextFieldColors
@@ -34,7 +34,6 @@ import com.pleos.mate.feature.journey.domain.OdometerSource
 import com.pleos.mate.feature.journey.domain.JourneyEditorMode
 import java.text.DateFormat
 import java.util.Date
-import java.util.Locale
 
 @Composable
 internal fun JourneyCard(model: JourneyViewModel, allowed: Boolean) {
@@ -83,7 +82,7 @@ internal fun JourneyCard(model: JourneyViewModel, allowed: Boolean) {
         modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("manual_journey")) {
         Text(if (editor != null) "작성 중인 기억 이어 쓰기" else "직접 기억 남기기")
     }
-    if (editor != null && editorOpen && allowed && model.loaded) AlertDialog(
+    if (editor != null && editorOpen && allowed && model.loaded) CompanionDialog(
         modifier = Modifier.companionDialogBorder(),
         onDismissRequest = { if (!model.busy) editorOpen = false },
         containerColor = MaterialTheme.colorScheme.surface,
@@ -108,7 +107,7 @@ internal fun JourneyCard(model: JourneyViewModel, allowed: Boolean) {
             TextButton(onClick = model::cancelEditor, enabled = !model.busy) { Text("작성 취소") }
         } }
     )
-    if (viewing && allowed && editor == null) AlertDialog(
+    if (viewing && allowed && editor == null) CompanionDialog(
         modifier = Modifier.companionDialogBorder(),
         onDismissRequest = { viewing = false }, containerColor = MaterialTheme.colorScheme.surface,
         title = { Text(stringResource(R.string.journey_memories)) },
@@ -129,7 +128,7 @@ internal fun JourneyCard(model: JourneyViewModel, allowed: Boolean) {
     )
     if (deletingId != null && allowed) {
         val id = requireNotNull(deletingId)
-        AlertDialog(
+        CompanionDialog(
             modifier = Modifier.companionDialogBorder(),
             onDismissRequest = { if (!model.busy) deletingId = null }, containerColor = MaterialTheme.colorScheme.surface,
             title = { Text(stringResource(R.string.memory_delete_title)) },
@@ -155,7 +154,8 @@ private fun JourneyDetails(value: Journey) {
         Text("직접 남긴 기억 · 거리·시간 측정 없음", style = MaterialTheme.typography.bodyMedium)
         return
     }
-    val distance = if (value.meters < 1) "<1 m" else if (value.meters < 1000) String.format(Locale.getDefault(), "%.0f m", value.meters)
-        else String.format(Locale.getDefault(), "%.1f km", value.meters / 1000)
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+    val distance = if (value.meters < 1) "<1 m" else if (value.meters < 1000) String.format(locale, "%.0f m", value.meters)
+        else String.format(locale, "%.1f km", value.meters / 1000)
     Text(if (value.minutes == null) "$distance · 주행 시간 확인 불가" else stringResource(R.string.journey_metrics, distance, value.minutes), style = MaterialTheme.typography.titleMedium)
 }

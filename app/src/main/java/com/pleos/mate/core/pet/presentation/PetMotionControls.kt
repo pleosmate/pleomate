@@ -8,6 +8,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.Alignment
@@ -26,7 +27,9 @@ import com.pleos.mate.core.pet.model.PetMotionRules
 @Composable
 internal fun PetMotionControls(level: Int, enabled: Boolean, expanded: Boolean, onToggle: () -> Unit, onPlay: (PetMotion) -> Unit) {
     Box {
-        TextButton(onClick = onToggle, enabled = enabled, modifier = Modifier.testTag("pet_motion_controls")) {
+        TextButton(onClick = onToggle, enabled = enabled, colors = ButtonDefaults.textButtonColors(
+            contentColor = Color.White, disabledContentColor = Color.White.copy(alpha = .5f)
+        ), modifier = Modifier.testTag("pet_motion_controls")) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Icon(painterResource(R.drawable.ic_motion_smile), contentDescription = null, modifier = Modifier.size(22.dp))
                 Text("함께 놀기")

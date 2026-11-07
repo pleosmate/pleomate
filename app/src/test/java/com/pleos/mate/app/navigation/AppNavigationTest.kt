@@ -55,6 +55,13 @@ class AppNavigationTest {
         assertEquals("로버", home.petName)
     }
 
+    @Test fun explorationIsAvailableInReleaseAndBackPreservesTheProfile() {
+        val state = AppUiState(characterId = "bear", petName = "곰이")
+        val exploration = state.reduce(AppAction.SelectTab(AppTab.EXPLORE), true, false)
+        assertEquals(AppTab.EXPLORE, exploration.tab)
+        assertEquals(state, exploration.reduce(AppAction.Back, true, false))
+    }
+
     @Test fun draftNameIsBoundedAndBackCannotSkipFirstMeeting() {
         val first = AppUiState()
         assertEquals(first, first.reduce(AppAction.Back, true, false))

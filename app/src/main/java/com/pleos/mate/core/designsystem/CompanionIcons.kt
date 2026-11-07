@@ -9,15 +9,27 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.material3.MaterialTheme
 
-internal enum class Glyph { Home, Missions, Collection, Settings, Tools, Companion, ChevronRight, Check }
+internal enum class Glyph { Home, Explore, Missions, Collection, Settings, Tools, Companion, ChevronRight, Check }
 
 @Composable
-internal fun CompanionGlyphIcon(glyph: Glyph, modifier: Modifier = Modifier, tint: Color = Color.White) {
+internal fun CompanionGlyphIcon(glyph: Glyph, modifier: Modifier = Modifier, tint: Color = MaterialTheme.colorScheme.onSurface) {
     Canvas(modifier) {
         val stroke = size.minDimension * 0.085f
         fun line(start: Offset, end: Offset) = drawLine(tint, start, end, stroke, cap = StrokeCap.Round)
         when (glyph) {
+            Glyph.Explore -> {
+                drawCircle(tint, radius = size.minDimension * .36f, center = Offset(size.width * .5f, size.height * .5f), style = androidx.compose.ui.graphics.drawscope.Stroke(stroke))
+                val needle = Path().apply {
+                    moveTo(size.width * .66f, size.height * .3f)
+                    lineTo(size.width * .55f, size.height * .56f)
+                    lineTo(size.width * .34f, size.height * .7f)
+                    lineTo(size.width * .45f, size.height * .44f)
+                    close()
+                }
+                drawPath(needle, tint)
+            }
             Glyph.Home -> {
                 line(Offset(size.width * .16f, size.height * .48f), Offset(size.width * .5f, size.height * .18f))
                 line(Offset(size.width * .5f, size.height * .18f), Offset(size.width * .84f, size.height * .48f))

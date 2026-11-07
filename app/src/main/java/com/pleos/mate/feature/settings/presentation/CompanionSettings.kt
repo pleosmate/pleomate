@@ -3,14 +3,18 @@ package com.pleos.mate.feature.settings.presentation
 import android.app.ActivityManager
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
@@ -19,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.pleos.mate.core.designsystem.CompanionDialog
+import com.pleos.mate.core.designsystem.CompanionPageHeader
 import com.pleos.mate.core.designsystem.companionCardBackground
 import com.pleos.mate.core.designsystem.companionDialogBorder
 import com.pleos.mate.feature.companion.presentation.PetWardrobe
@@ -35,11 +41,16 @@ internal fun CompanionSettings(session: CompanionSession, journeys: JourneyViewM
     val canReset = session.loaded && journeys.loaded && session.parkedAndAllowed && !session.growthBusy() &&
         !session.vehicleMissionReading && !journeys.busy && !journeys.recording
     LaunchedEffect(canReset) { if (!canReset) confirming = false }
-    TextButton(onClick = onBack) { Text("‹ 홈으로") }
-    Text("설정", style = MaterialTheme.typography.headlineMedium)
+    CompanionPageHeader("설정", "동료의 모습과 목소리, 함께 쌓은 기록을 관리해요.")
     var wardrobe by rememberSaveable { mutableStateOf(false) }
-    OutlinedButton(onClick = { wardrobe = !wardrobe }, modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp)) {
-        Text(if (wardrobe) "동료 꾸미기 접기" else "동료 꾸미기 · 성장 모습 보기")
+    val companionControls: @Composable () -> Unit = {
+        Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+    Column(Modifier.fillMaxWidth().companionCardBackground().padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text("나의 동료", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text("함께 자란 모습을 살펴보고 공간과 소품을 꾸며요.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Button(onClick = { wardrobe = !wardrobe }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+            Text(if (wardrobe) "꾸미기 접기" else "동료 꾸미기", fontWeight = FontWeight.Bold)
+        }
     }
     if (wardrobe) PetWardrobe(session, journeys)
     androidx.compose.foundation.layout.Row(
@@ -56,10 +67,14 @@ internal fun CompanionSettings(session: CompanionSession, journeys: JourneyViewM
     OutlinedButton(onClick = { session.previewPetReaction(); onBack() }, enabled = session.parkedAndAllowed) {
         Text("홈에서 말풍선 미리보기")
     }
+        }
+    }
+    val dataControls: @Composable () -> Unit = {
+        Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
     Column(Modifier.fillMaxWidth().companionCardBackground().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("기록 보관", style = MaterialTheme.typography.titleLarge)
-        Text("이 차량의 앱 안에 펫·성장·기억을 보관해요. 같은 차량을 사용하는 사람은 기록을 볼 수 있어요.")
-        Text("직접 남긴 기억에는 거리·시간과 이동 경험치가 포함되지 않아요.")
+        Text("이 차량의 앱 안에 펫·성장·기억·발견한 지역을 보관해요. 같은 차량을 사용하는 사람은 기록을 볼 수 있어요.")
+        Text("탐험 지도는 지역 확인 시에만 위치를 사용하며, 좌표 대신 수집한 동네와 날짜만 저장해요. 앱 삭제나 초기화 시 기록도 삭제돼요.")
         journeys.editor?.let { Text("작성 중인 기억이 있어요. 도감에서 이어 쓸 수 있어요.") }
     }
     Column(Modifier.fillMaxWidth().companionCardBackground().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -74,17 +89,31 @@ internal fun CompanionSettings(session: CompanionSession, journeys: JourneyViewM
     }
     Column(Modifier.fillMaxWidth().companionCardBackground().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("데이터 초기화", style = MaterialTheme.typography.titleLarge)
-        Text("펫 선택·이름, 레벨·경험치, 미션·배지, 모든 기억과 작성 중인 내용, 차량 기능 안내 이력을 삭제해요. 삭제 후 복구할 수 없어요.")
+        Text("펫 선택·이름, 레벨·경험치, 미션·배지, 모든 기억·탐험 지역·기념품과 작성 중인 내용, 차량 기능 안내 이력을 삭제해요. 삭제 후 복구할 수 없어요.")
         Text("초기화하면 앱이 종료됩니다. 다시 열면 첫 만남부터 시작해요.")
         if (!canReset) Text("주차 후 진행 중인 조회·저장을 마치고, 이동 관찰을 종료한 뒤 초기화할 수 있어요.")
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         OutlinedButton(onClick = { confirming = true }, enabled = canReset,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("reset_companion")) { Text("모든 데이터 초기화") }
+            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("reset_companion"),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text("모든 데이터 초기화") }
     }
-    if (confirming && canReset) AlertDialog(
+        }
+    }
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        if (maxWidth >= 840.dp && !wardrobe) {
+            Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                Box(Modifier.weight(1f)) { companionControls() }
+                Box(Modifier.weight(1f)) { dataControls() }
+            }
+        } else Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+            companionControls()
+            dataControls()
+        }
+    }
+    if (confirming && canReset) CompanionDialog(
         modifier = Modifier.companionDialogBorder(), containerColor = MaterialTheme.colorScheme.surface,
         onDismissRequest = { confirming = false }, title = { Text("모든 기록을 초기화할까요?") },
-        text = { Text("펫·성장·미션·기억·작성 초안·안내 이력을 모두 지워요. 복구할 수 없으며 앱이 종료됩니다.") },
+        text = { Text("펫·성장·미션·기억·탐험 지도·기념품·작성 초안·안내 이력을 모두 지워요. 복구할 수 없으며 앱이 종료됩니다.") },
         confirmButton = { Button(onClick = {
             confirming = false
             val accepted = (context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()

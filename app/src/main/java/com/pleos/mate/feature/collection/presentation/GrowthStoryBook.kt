@@ -1,10 +1,15 @@
 package com.pleos.mate.feature.collection.presentation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -12,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.pleos.mate.core.designsystem.CompanionDialog
 import com.pleos.mate.core.designsystem.companionCardBackground
 import com.pleos.mate.core.designsystem.companionDialogBorder
 import com.pleos.mate.feature.collection.domain.growthStories
@@ -25,14 +31,21 @@ internal fun GrowthStoryBook(progress: GrowthProgress) {
     Text("함께한 미션이 동료의 이야기가 돼요. 열린 이야기는 언제든 다시 읽을 수 있어요.", color = MaterialTheme.colorScheme.onSurfaceVariant)
     stories.forEachIndexed { index, story ->
         Column(Modifier.fillMaxWidth().companionCardBackground().padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("이야기 ${index + 1} · ${if (story.completed) "열림" else "기다리는 중"}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-            Text(story.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(52.dp).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
+                    Text("${index + 1}", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(if (story.completed) "열린 이야기" else "기다리는 이야기", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                    Text(story.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                }
+            }
             Text(story.progress)
             TextButton(onClick = { selectedId = story.id }) { Text(if (story.completed) "이야기 읽기" else "열리는 방법") }
         }
     }
     stories.find { it.id == selectedId }?.let { story ->
-        AlertDialog(onDismissRequest = { selectedId = null }, modifier = Modifier.companionDialogBorder(),
+        CompanionDialog(onDismissRequest = { selectedId = null }, modifier = Modifier.companionDialogBorder(),
             containerColor = MaterialTheme.colorScheme.surface,
             title = { Text(story.title) },
             text = { Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {

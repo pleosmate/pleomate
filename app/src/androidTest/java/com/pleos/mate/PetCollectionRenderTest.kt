@@ -16,6 +16,7 @@ class PetCollectionRenderTest {
         instrumentation.runOnMainSync {
             val bitmap = Bitmap.createBitmap(720, 600, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
+            val pixels = IntArray(400 * 320)
             val view = PetMotionView(instrumentation.targetContext)
             view.layout(0, 0, 720, 600)
             for (character in PetCharacter.entries) for (direction in PetRunDirection.entries)
@@ -27,7 +28,8 @@ class PetCollectionRenderTest {
                     view.outfit = outfit.id
                     view.room = room.id
                     view.draw(canvas)
-                    assertTrue(bitmap.getPixel(360, 400) != 0)
+                    bitmap.getPixels(pixels, 0, 400, 160, 80, 400, 320)
+                    assertTrue("$character $direction ${outfit.id} ${room.id} level=$level", pixels.any { android.graphics.Color.alpha(it) != 0 })
                 }
             bitmap.recycle()
         }

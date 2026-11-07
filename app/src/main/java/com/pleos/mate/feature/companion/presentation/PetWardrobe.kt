@@ -1,6 +1,10 @@
 package com.pleos.mate.feature.companion.presentation
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -28,20 +32,26 @@ internal fun PetWardrobe(session: CompanionSession, journeys: JourneyViewModel) 
         val wide = maxWidth >= 840.dp
         val preview: @Composable () -> Unit = {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    Box(Modifier.fillMaxWidth().height(280.dp).background(
+        Brush.verticalGradient(listOf(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.surfaceContainerHigh)), RoundedCornerShape(26.dp)),
+        contentAlignment = Alignment.Center) {
     PetStage(character, active = session.parkedAndAllowed,
         running = previewGait == 2 && session.parkedAndAllowed, walking = previewGait == 1 && session.parkedAndAllowed,
         previewMotion = previewMotion, previewRequest = previewRequest,
         level = previewLevel, outfit = session.outfit, room = session.room,
-        modifier = Modifier.fillMaxWidth().height(240.dp))
+        modifier = Modifier.fillMaxWidth().height(260.dp))
+    }
     Text("성장 모습 · Lv.1 → Lv.5 → Lv.15", style = MaterialTheme.typography.titleMedium)
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf(0, 1, 5, 15).forEach { level ->
+    listOf(0, 1, 5, 15).chunked(2).forEach { levels ->
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        levels.forEach { level ->
             OutlinedButton(onClick = { appearancePreview = level }, enabled = session.parkedAndAllowed,
                 modifier = Modifier.weight(1f).heightIn(min = 56.dp),
                 colors = ButtonDefaults.outlinedButtonColors(containerColor = if (appearancePreview == level) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else Color.Transparent)) {
                 Text((if (appearancePreview == level) "✓ " else "") + if (level == 0) "현재" else "Lv.$level")
             }
         }
+    }
     }
     Text(if (appearancePreview == 0) "현재 외형: ${PetCollection.stage(session.progress.level)}"
         else "Lv.$previewLevel 모습과 모션을 미리 보고 있어요. 실제 레벨과 보상은 바뀌지 않아요.")

@@ -3,6 +3,10 @@ package com.pleos.mate.feature.collection.presentation
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import com.pleos.mate.R
+import com.pleos.mate.core.designsystem.CompanionDialog
 import com.pleos.mate.core.designsystem.companionCardBackground
 import com.pleos.mate.core.designsystem.companionDialogBorder
 import com.pleos.mate.feature.growth.domain.GrowthProgress
@@ -84,7 +88,7 @@ internal fun BadgeCollection(progress: GrowthProgress, archive: JourneyArchive) 
     }
 
     selected?.let { badge ->
-        AlertDialog(
+        CompanionDialog(
             modifier = Modifier.companionDialogBorder(),
             onDismissRequest = { selected = null },
             containerColor = MaterialTheme.colorScheme.surface,
@@ -130,11 +134,15 @@ private fun BadgeTile(badge: CompanionBadge, modifier: Modifier = Modifier, onCl
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-            Image(
-                painter = painterResource(badge.image),
-                contentDescription = badge.title,
-                modifier = Modifier.size(112.dp).alpha(if (badge.earned) 1f else 0.28f)
-            )
+            Box(Modifier.fillMaxWidth().background(
+                if (badge.earned) MaterialTheme.colorScheme.primary.copy(alpha = 0.10f) else Color.White.copy(alpha = 0.03f),
+                RoundedCornerShape(18.dp)).padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
+                Image(
+                    painter = painterResource(badge.image),
+                    contentDescription = null,
+                    modifier = Modifier.size(96.dp).alpha(if (badge.earned) 1f else 0.28f)
+                )
+            }
             Text(badge.title, textAlign = androidx.compose.ui.text.style.TextAlign.Center, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             Text(
                 if (badge.earned) "획득 완료" else "잠김 · 눌러서 확인",

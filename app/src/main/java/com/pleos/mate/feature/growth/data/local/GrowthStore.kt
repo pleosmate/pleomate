@@ -16,7 +16,7 @@ class GrowthStore(directory: File) : GrowthDataSource {
 
     override fun read(): GrowthProgress = if (record.exists()) {
         val lines = record.readText().trim().lines()
-        if (lines.firstOrNull() in listOf("2", "3", "4", "5", "6")) {
+        if (lines.firstOrNull() in listOf("2", "3", "4", "5", "6", "7", "8")) {
             require(lines.size >= 5)
             val time = lines[1].toLong().takeIf { it > 0 }
             val visibility = lines[2]
@@ -31,14 +31,14 @@ class GrowthStore(directory: File) : GrowthDataSource {
             val weeklyCount = lines[index++].toInt().also { require(it in 0..10000) }
             val weeks = lines.subList(index, index + weeklyCount).toSet()
             index += weeklyCount
-            val missions = if (lines.first() in listOf("3", "4", "5", "6")) {
+            val missions = if (lines.first() in listOf("3", "4", "5", "6", "7", "8")) {
                 val count = lines[index++].toInt().also { require(it in 0..persistedVehicleMissionIds.size) }
                 lines.subList(index, index + count).toSet().also { values ->
                     require(values.size == count && values.all { id -> id in persistedVehicleMissionIds })
                     index += count
                 }
             } else emptySet()
-            val memories = if (lines.first() in listOf("5", "6")) {
+            val memories = if (lines.first() in listOf("5", "6", "7", "8")) {
                 val count = lines[index++].toInt().also { require(it in 0..10000) }
                 lines.subList(index, index + count).map { line ->
                     val parts = line.split('|')
@@ -53,7 +53,7 @@ class GrowthStore(directory: File) : GrowthDataSource {
                     index += count
                 }
             } else emptyList()
-            val windDates = if (lines.first() == "6") {
+            val windDates = if (lines.first() in listOf("6", "7", "8")) {
                 val count = lines[index++].toInt().also { require(it in 0..10000) }
                 lines.subList(index, index + count).toSet().also { dates ->
                     require(dates.size == count)
@@ -61,9 +61,24 @@ class GrowthStore(directory: File) : GrowthDataSource {
                     index += count
                 }
             } else emptySet()
+            val regions = if (lines.first() in listOf("7", "8")) {
+                val count = lines[index++].toInt().also { require(it in 0..100) }
+                lines.subList(index, index + count).toSet().also { values ->
+                    require(values.size == count && values.all { it.isNotBlank() && it.length <= 50 })
+                    index += count
+                }
+            } else emptySet()
+            val souvenirs = if (lines.first() == "8") {
+                val count = lines[index++].toInt().also { require(it in 0..20000) }
+                lines.subList(index, index + count).toSet().also { values ->
+                    require(values.size == count && values.all { it.matches(Regex("[0-9]{10}\\|[1-3]\\|[0-9]{4}-[0-9]{2}-[0-9]{2}")) })
+                    values.forEach { java.time.LocalDate.parse(it.substringAfterLast('|')) }
+                    index += count
+                }
+            } else emptySet()
             require(lines.size == index)
             require(weeks.size == weeklyCount && weeks.all { it.matches(Regex("\\d{4}-W\\d{2}")) })
-            GrowthProgress(time, windMemoryHidden = visibility == "hidden", dailyDoorCheckDates = dates, weeklyDoorBonusWeeks = weeks, completedVehicleMissions = if (lines.first() in listOf("4", "5", "6")) missions else emptySet(), companionMemories = memories, dailyWindDates = windDates)
+            GrowthProgress(time, windMemoryHidden = visibility == "hidden", dailyDoorCheckDates = dates, weeklyDoorBonusWeeks = weeks, completedVehicleMissions = if (lines.first() in listOf("4", "5", "6", "7", "8")) missions else emptySet(), companionMemories = memories, dailyWindDates = windDates, exploredRegions = regions, explorationSouvenirs = souvenirs)
         } else {
             require(lines.size in 1..2)
             val time = lines.first().toLong().also { require(it > 0) }
@@ -78,7 +93,7 @@ class GrowthStore(directory: File) : GrowthDataSource {
         pending.outputStream().use { stream ->
             val visibility = if (progress.windMemoryHidden) "hidden" else "visible"
             val lines = buildList {
-                add("6")
+                add("8")
                 add((progress.windCompletedAt ?: 0L).toString())
                 add(visibility)
                 add(progress.dailyDoorCheckDates.size.toString())
@@ -93,6 +108,10 @@ class GrowthStore(directory: File) : GrowthDataSource {
                 })
                 add(progress.dailyWindDates.size.toString())
                 addAll(progress.dailyWindDates.sorted())
+                add(progress.exploredRegions.size.toString())
+                addAll(progress.exploredRegions.sorted())
+                add(progress.explorationSouvenirs.size.toString())
+                addAll(progress.explorationSouvenirs.sorted())
             }
             stream.write(lines.joinToString("\n").toByteArray(Charsets.UTF_8))
             stream.fd.sync()

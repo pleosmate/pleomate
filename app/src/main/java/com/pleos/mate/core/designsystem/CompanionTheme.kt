@@ -8,6 +8,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -30,20 +32,35 @@ internal fun CompanionTheme(content: @Composable () -> Unit) {
             Font(R.font.asta_sans_bold, FontWeight.Bold)
         )
     }
-    val colors = darkColorScheme(
-        primary = Color(0xFFD3C29C), onPrimary = Color(0xFF34332F), primaryContainer = Color(0xFFB8A982),
+    val colors = if (isSystemInDarkTheme()) darkColorScheme(
+        primary = Color(0xFFFFDCA8), onPrimary = Color(0xFF382A20), primaryContainer = Color(0xFFB8A982),
         onPrimaryContainer = Color(0xFF292923),
-        secondary = Color(0xFFD5CCB9), onSecondary = Color(0xFF34332F),
-        secondaryContainer = Color(0xFF68605A), onSecondaryContainer = Color(0xFFFFFCF6),
+        secondary = Color(0xFFD5CCB9), onSecondary = Color(0xFF382A20),
+        secondaryContainer = Color(0xFF48564F), onSecondaryContainer = Color(0xFFFFFCF6),
         tertiary = Color(0xFFBEC9B9), onTertiary = Color(0xFF30382E),
-        tertiaryContainer = Color(0xFF535E50), onTertiaryContainer = Color(0xFFF0F3EA),
-        onBackground = Color(0xFFFFFCF6), surfaceTint = Color(0xFFD3C29C),
-        surfaceContainerLowest = Color(0xFF373432), surfaceContainerLow = Color(0xFF45413E),
-        surfaceContainer = Color(0xFF514D49), surfaceContainerHigh = Color(0xFF5B5652),
-        surfaceContainerHighest = Color(0xFF65605B),
-        background = Color(0xFF484542), surface = Color(0xFF514D49), onSurface = Color(0xFFFFFCF6),
-        surfaceVariant = Color(0xFF514D49), onSurfaceVariant = Color(0xFFE6E0D9),
-        outline = Color(0xFFD5CCB9), outlineVariant = Color(0xFF827A72)
+        tertiaryContainer = Color(0xFF45594E), onTertiaryContainer = Color(0xFFF0F3EA),
+        onBackground = Color(0xFFFFFCF6), surfaceTint = Color(0xFFFFD49B),
+        surfaceContainerLowest = Color(0xFF202827), surfaceContainerLow = Color(0xFF2A3431),
+        surfaceContainer = Color(0xFF353C3B), surfaceContainerHigh = Color(0xFF404C47),
+        surfaceContainerHighest = Color(0xFF4B5952),
+        background = Color(0xFF20352B), surface = Color(0xFF3C5144), onSurface = Color(0xFFFFFCF6),
+        surfaceVariant = Color(0xFF353C3B), onSurfaceVariant = Color(0xFFDBDFD9),
+        outline = Color(0xFFD5CCB9), outlineVariant = Color(0xFF78827B)
+    ) else lightColorScheme(
+        primary = Color(0xFF426D54), onPrimary = Color.White,
+        primaryContainer = Color(0xFFD5E8D4), onPrimaryContainer = Color(0xFF163E29),
+        secondary = Color(0xFF586B59), onSecondary = Color.White,
+        secondaryContainer = Color(0xFFE2EBDD), onSecondaryContainer = Color(0xFF263D2E),
+        tertiary = Color(0xFF875D39), onTertiary = Color.White,
+        tertiaryContainer = Color(0xFFFFE1BD), onTertiaryContainer = Color(0xFF503519),
+        background = Color(0xFFF3F5EB), onBackground = Color(0xFF263C2E),
+        surface = Color(0xFFFFFCF4), onSurface = Color(0xFF263C2E),
+        surfaceVariant = Color(0xFFE3EBDD), onSurfaceVariant = Color(0xFF526457),
+        surfaceContainerLowest = Color.White, surfaceContainerLow = Color(0xFFFFFDF7),
+        surfaceContainer = Color(0xFFF5F7EF), surfaceContainerHigh = Color(0xFFEDF2E8),
+        surfaceContainerHighest = Color(0xFFE2EBDD),
+        surfaceTint = Color(0xFF426D54), outline = Color(0xFF6C8070),
+        outlineVariant = Color(0xFFCCD9CA)
     )
     val baseTypography = Typography()
     val typography = Typography(

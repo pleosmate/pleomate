@@ -4,9 +4,11 @@ Not a final bear/rabbit asset: exercises PBR meshes and node animation in Filame
 import json
 import math
 import struct
+import sys
 from pathlib import Path
 
-OUTPUT = Path(__file__).resolve().parents[1] / 'app/src/debug/assets/models/companion-probe.glb'
+STUDY = '--study' in sys.argv
+OUTPUT = Path(__file__).resolve().parents[1] / ('app/src/debug/assets/models/companion-study.glb' if STUDY else 'app/src/debug/assets/models/companion-probe.glb')
 
 
 def build():
@@ -67,7 +69,7 @@ def build():
     sphere_shape = sphere_geometry()
     body_shape = sphere_geometry(pear=True)
     materials = [
-        ('ivory', [0.91, 0.84, 0.73, 1], 0.67),
+        ('ivory', [0.96, 0.88, 0.78, 1] if STUDY else [0.91, 0.84, 0.73, 1], 0.67),
         ('ear', [0.90, 0.60, 0.47, 1], 0.8),
         ('eyes', [0.035, 0.021, 0.016, 1], 0.19),
         ('base', [0.78, 0.72, 0.62, 1], 0.85),
@@ -92,13 +94,13 @@ def build():
         doc['nodes'][parent].setdefault('children', []).append(node)
         return node
 
-    sphere('body', [0, 0.82, 0], [0.59, 0.75, 0.48], body_mesh)
+    sphere('body', [0, 0.82, 0], ([0.68, 0.68, 0.49] if STUDY else [0.59, 0.75, 0.48]), body_mesh)
     for x in [-0.40, 0.40]:
         sphere('ear', [x, 1.45, -0.05], [0.19, 0.225, 0.135])
         sphere('ear_inner', [x, 1.46, 0.062], [0.115, 0.145, 0.035], 1)
         sphere('foot', [x * 0.7, 0.12, 0.29], [0.17, 0.13, 0.20])
         sphere('cheek', [x * 0.85, 0.91, 0.436], [0.088, 0.038, 0.018], 5)
-    eyes = [sphere('eye', [x, 1.06, 0.475], [0.054, 0.074, 0.035], 2) for x in [-0.21, 0.21]]
+    eyes = [sphere('eye', [x, 1.06, 0.475], ([0.062, 0.068, 0.035] if STUDY else [0.054, 0.074, 0.035]), 2) for x in [-0.21, 0.21]]
     for eye in eyes:
         sphere('eye_glint', [-0.26, 0.35, 0.83], [0.24, 0.19, 0.25], 6, eye)
     sphere('muzzle', [0, 0.87, 0.482], [0.22, 0.14, 0.115], 4)
@@ -146,7 +148,7 @@ def build():
 
     times = [0, 1.1, 2.2, 2.5, 2.59, 2.68, 3.3, 4.4]
     scales = [[1 + 0.003 * math.sin(t / 4.4 * math.tau), 1 + 0.009 * math.sin(t / 4.4 * math.tau), 1] for t in times]
-    blink = [[0.054, 0.006 if t == 2.59 else 0.074, 0.035] for t in times]
+    blink = [[0.062 if STUDY else 0.054, 0.006 if t == 2.59 else (0.068 if STUDY else 0.074), 0.035] for t in times]
     animation('Idle', times, [(0, 'scale', scales)] + [(eye, 'scale', blink) for eye in eyes])
     angles = [0, -0.65, -0.25, -0.65, -0.2, 0]
     rotations = [[0, 0, math.sin(a / 2), math.cos(a / 2)] for a in angles]

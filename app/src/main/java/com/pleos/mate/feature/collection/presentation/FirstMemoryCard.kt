@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -25,6 +24,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pleos.mate.R
+import com.pleos.mate.core.designsystem.CompanionDialog
 import com.pleos.mate.core.designsystem.companionCardBackground
 import com.pleos.mate.core.designsystem.companionDialogBorder
 import com.pleos.mate.feature.companion.presentation.session.CompanionSession
@@ -57,7 +57,7 @@ internal fun FirstMemoryCard(session: CompanionSession) {
             session.memoryError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
     }
     if (viewing && time != null && session.parkedAndAllowed && !deleting) {
-        AlertDialog(
+        CompanionDialog(
             modifier = Modifier.companionDialogBorder(),
             onDismissRequest = { viewing = false },
             containerColor = MaterialTheme.colorScheme.surface,
@@ -74,7 +74,7 @@ internal fun FirstMemoryCard(session: CompanionSession) {
         )
     }
     if (deleting && time != null && session.parkedAndAllowed) {
-        AlertDialog(
+        CompanionDialog(
             modifier = Modifier.companionDialogBorder(),
             onDismissRequest = { if (!session.memorySaving) deleting = false },
             containerColor = MaterialTheme.colorScheme.surface,

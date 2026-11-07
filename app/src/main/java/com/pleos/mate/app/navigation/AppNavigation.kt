@@ -2,7 +2,7 @@ package com.pleos.mate.app.navigation
 
 import com.pleos.mate.core.pet.model.PetCharacter
 
-internal enum class AppTab { HOME, MISSIONS, COLLECTION, SETTINGS, DEVELOPER }
+internal enum class AppTab { HOME, EXPLORE, MISSIONS, COLLECTION, SETTINGS, DEVELOPER }
 
 internal data class AppUiState(
     val characterId: String? = null,

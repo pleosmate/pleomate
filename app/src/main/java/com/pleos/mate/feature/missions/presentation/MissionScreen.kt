@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -22,6 +20,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.pleos.mate.core.designsystem.CompanionDialog
+import com.pleos.mate.core.designsystem.CompanionPageHeader
+import com.pleos.mate.core.designsystem.CompanionOverview
+import com.pleos.mate.core.designsystem.CompanionSections
 import com.pleos.mate.R
 import com.pleos.mate.core.designsystem.companionDialogBorder
 import com.pleos.mate.feature.companion.presentation.session.CompanionSession
@@ -40,14 +42,10 @@ internal fun MissionCatalog(session: CompanionSession, onBack: () -> Unit, onSta
     val busy = session.mission in setOf(CompanionSession.Mission.CHECKING, CompanionSession.Mission.WAITING, CompanionSession.Mission.VERIFYING, CompanionSession.Mission.SAVING) ||
         session.dailyDoorCheck == CompanionSession.DailyDoorCheck.CHECKING
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        TextButton(onClick = onBack, modifier = Modifier.heightIn(min = 52.dp)) { Text("‹  홈으로") }
-        Text("차량 미션", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Text("일일·주간·한 번만 달성하는 미션으로 동료와 함께 성장해요.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            listOf("차와 함께", "기억 남기기", "차량 알아보기").forEachIndexed { index, label ->
-                FilterChip(selected = section == index, onClick = { section = index }, label = { Text(label) })
-            }
-        }
+        CompanionPageHeader("함께하는 미션", "일상의 작은 경험으로 동료가 자라요. 자동으로 확인되는 미션도 있어요.")
+        CompanionOverview("TODAY", if (todayDoorCompleted) "오늘도 함께했어요" else "작은 경험이 성장이 돼요",
+            if (todayDoorCompleted) "오늘의 문 닫힘 확인을 마쳤어요." else "주차 후 차량 상태를 확인하고 동료와 경험을 쌓아요.")
+        CompanionSections(listOf("차와 함께", "기억 남기기", "차량 알아보기"), section) { section = it }
         if (section == 0) {
         Text("오늘의 미션 · 하루 한 번", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         MissionItem(
@@ -111,7 +109,7 @@ internal fun MissionCatalog(session: CompanionSession, onBack: () -> Unit, onSta
         vehicleMissions.find { it.id == session.vehicleMissionId }?.let { item ->
             val done = item.id in session.progress.completedVehicleMissions
             var showGuide by rememberSaveable(item.id) { mutableStateOf(!session.hasSeenGuide(item.id)) }
-            AlertDialog(
+            CompanionDialog(
                 modifier = Modifier.companionDialogBorder(),
                 onDismissRequest = { if (!session.vehicleMissionSaving) session.cancelVehicleMission() },
                 containerColor = MaterialTheme.colorScheme.surface,

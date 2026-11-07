@@ -75,7 +75,7 @@ class GlbProbeView(context: Context, private val report: (String, Boolean) -> Un
             model.autoPlayAnimations = false
             val clear = model.renderer.clearOptions
             clear.clear = true
-            clear.clearColor = doubleArrayOf(0.965, 0.96, 0.945, 1.0)
+            clear.clearColor = doubleArrayOf(0.24, 0.33, 0.30, 1.0)
             model.renderer.clearOptions = clear
             model.view.dynamicResolutionOptions = model.view.dynamicResolutionOptions.apply { enabled = false }
             model.view.antiAliasing = View.AntiAliasing.FXAA
@@ -100,7 +100,7 @@ class GlbProbeView(context: Context, private val report: (String, Boolean) -> Un
             lights.setDirection(light, -0.36f, -0.72f, -0.59f)
             lights.setIntensity(light, 65_000f)
             lights.setSunAngularRadius(light, 1.8f)
-            val bytes = context.assets.open("models/companion-probe.glb").use { it.readBytes() }
+            val bytes = context.assets.open("models/companion-study.glb").use { it.readBytes() }
             val buffer = ByteBuffer.allocateDirect(bytes.size).apply { put(bytes); flip() }
             model.loadModelGlb(buffer)
             checkNotNull(model.asset) { "GLB asset creation failed" }

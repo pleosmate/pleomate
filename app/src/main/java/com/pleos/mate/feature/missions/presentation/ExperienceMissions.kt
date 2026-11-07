@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -26,6 +25,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pleos.mate.R
+import com.pleos.mate.core.designsystem.CompanionDialog
 import com.pleos.mate.core.designsystem.companionDialogBorder
 import com.pleos.mate.core.designsystem.companionTextFieldColors
 import com.pleos.mate.feature.companion.presentation.session.CompanionSession
@@ -58,21 +58,6 @@ internal fun ExperienceMissions(session: CompanionSession) {
     }
     Text("일일 미션 · 오늘의 기억", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
     ExperienceKind.entries.filter { it != ExperienceKind.GREETING }.forEach { kind ->
-        when (kind) {
-            ExperienceKind.PLACE -> {
-                Text("장소 · 지금 있는 곳", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text("현재 위치를 확인해 장소 이름을 기억해요. 좌표는 저장하지 않아요.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            ExperienceKind.DESTINATION -> {
-                Text("내비게이션 · 함께 도착한 곳", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text("설정된 목적지와 현재 위치를 함께 확인해요. 목적지가 없으면 내비게이션에서 먼저 설정해 주세요.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            ExperienceKind.NOTE -> {
-                Text("목소리 · 동료와 교감", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text("오늘의 한마디를 음성 또는 직접 입력으로 남겨요.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            ExperienceKind.GREETING -> Unit
-        }
         val done = session.progress.hasExperience(kind)
         val detail = when (kind) {
             ExperienceKind.PLACE -> "주차 후 현재 위치를 확인하고 장소 이름을 남겨요."
@@ -104,7 +89,7 @@ internal fun ExperienceMissions(session: CompanionSession) {
     experiences.selected?.let { kind ->
         val done = session.progress.hasExperience(kind)
         val memory = session.progress.companionMemories.lastOrNull { it.kind == kind && (kind == ExperienceKind.GREETING || it.date == MissionSchedule.today()) }
-        AlertDialog(
+        CompanionDialog(
             modifier = Modifier.companionDialogBorder(),
             onDismissRequest = { if (!session.experienceSaving) experiences.cancel() },
             containerColor = MaterialTheme.colorScheme.surface,

@@ -8,6 +8,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +18,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -29,6 +32,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.pleos.mate.BuildConfig
 import com.pleos.mate.core.designsystem.CompanionGlyphIcon
 import com.pleos.mate.core.designsystem.Glyph
@@ -45,26 +49,27 @@ internal fun CompanionBottomBar(
 ) {
     BoxWithConstraints(Modifier.fillMaxWidth()) {
     val compact = maxWidth < 480.dp
-    val itemWidth = if (compact) 48.dp else 58.dp
+    val itemWidth = if (compact) 48.dp else 72.dp
     Row(
-        Modifier.fillMaxWidth().padding(horizontal = if (compact) 8.dp else 26.dp, vertical = 16.dp),
+        Modifier.fillMaxWidth().padding(horizontal = if (compact) 4.dp else 26.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(
-            modifier = Modifier.widthIn(max = 368.dp).background(
-                Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.3f), Color.White.copy(alpha = 0.16f), Color.White.copy(alpha = 0.24f))),
+            modifier = Modifier.widthIn(max = 560.dp).background(
+                Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.colorScheme.surface)),
                 RoundedCornerShape(52.dp)
             ),
             shape = RoundedCornerShape(52.dp),
             color = Color.Transparent,
-            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.18f)),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
             tonalElevation = 0.dp,
             shadowElevation = 0.dp
         ) {
-            Row(Modifier.padding(if (compact) 6.dp else 10.dp), horizontalArrangement = Arrangement.spacedBy(if (compact) 2.dp else 12.dp)) {
+            Row(Modifier.padding(if (compact) 4.dp else 10.dp), horizontalArrangement = Arrangement.spacedBy(if (compact) 0.dp else 12.dp)) {
                 val tabs = buildList {
                     add(Glyph.Home to "홈")
+                    add(Glyph.Explore to "여행")
                     add(Glyph.Missions to "미션")
                     add(Glyph.Collection to "도감")
                     add(Glyph.Settings to "설정")
@@ -73,9 +78,9 @@ internal fun CompanionBottomBar(
                 tabs.forEachIndexed { index, (icon, label) ->
                     val active = selectedTab == AppTab.entries[index]
                     Surface(
-                        modifier = Modifier.size(width = itemWidth, height = 56.dp),
+                        modifier = Modifier.size(width = itemWidth, height = if (compact) 56.dp else 72.dp),
                         shape = RoundedCornerShape(50),
-                        color = if (active) Color.White.copy(alpha = 0.12f) else Color.Transparent
+                        color = if (active) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
                     ) {
                         Box(
                             Modifier.fillMaxSize().semantics { contentDescription = label }.selectable(
@@ -84,17 +89,21 @@ internal fun CompanionBottomBar(
                             ),
                             contentAlignment = Alignment.Center
                         ) {
-                            CompanionGlyphIcon(icon, Modifier.size(30.dp), Color.White.copy(alpha = if (active) 1f else 0.78f))
+                            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                                CompanionGlyphIcon(icon, Modifier.size(if (compact) 24.dp else 28.dp), if (active) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(label, color = if (active) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = if (compact) 11.sp else 14.sp, lineHeight = 18.sp, maxLines = 1)
+                            }
                         }
                     }
                 }
             }
         }
-        Surface(
-            modifier = Modifier.padding(start = if (compact) 8.dp else 16.dp).size(if (compact) 60.dp else 80.dp)
+        if (!compact) Surface(
+            modifier = Modifier.padding(start = if (compact) 8.dp else 16.dp).size(if (compact) 48.dp else 80.dp)
                 .semantics { contentDescription = "동료 선택" }
                 .clip(RoundedCornerShape(50))
-                .background(Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.3f), Color.White.copy(alpha = 0.2f))), RoundedCornerShape(50))
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(50))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -102,7 +111,7 @@ internal fun CompanionBottomBar(
                 ),
             shape = RoundedCornerShape(50),
             color = Color.Transparent,
-            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.18f)),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
             tonalElevation = 0.dp,
             shadowElevation = 0.dp
         ) {

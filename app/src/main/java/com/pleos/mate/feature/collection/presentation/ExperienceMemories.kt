@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -19,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.pleos.mate.core.designsystem.CompanionDialog
 import com.pleos.mate.core.designsystem.companionCardBackground
 import com.pleos.mate.core.designsystem.companionDialogBorder
 import com.pleos.mate.feature.growth.domain.GrowthProgress
@@ -32,7 +32,7 @@ internal fun ExperienceMemories(progress: GrowthProgress) {
     if (memories.isEmpty()) Text("미션에서 장소와 한마디를 기억으로 남겨 보세요.")
     memories.takeLast(3).asReversed().forEach { MemoryTile(it) }
     if (memories.isNotEmpty()) TextButton(onClick = { viewing = true }) { Text("추억 모두 보기 · ${memories.size}개") }
-    if (viewing) AlertDialog(
+    if (viewing) CompanionDialog(
         modifier = Modifier.companionDialogBorder(),
         onDismissRequest = { viewing = false },
         containerColor = MaterialTheme.colorScheme.surface,
