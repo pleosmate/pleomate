@@ -20,8 +20,11 @@ import androidx.compose.ui.unit.dp
 import com.pleos.mate.core.designsystem.CompanionTheme
 import com.pleos.mate.feature.exploration.presentation.ExplorationMap
 import com.pleos.mate.feature.exploration.presentation.ExplorationAdaptiveLayout
+import com.pleos.mate.feature.exploration.presentation.ExplorationSelectionSummary
+import com.pleos.mate.feature.exploration.presentation.GeographicExplorationMap
 import com.pleos.mate.feature.exploration.presentation.SouvenirImage
 import com.pleos.mate.feature.exploration.presentation.explorationPlaces
+import com.pleos.mate.feature.exploration.data.Area
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
@@ -74,7 +77,7 @@ class ExplorationLayoutTest {
         }
         assertNotEquals("Each slot should render a different pixel-art silhouette", rendered[0], rendered[1])
         assertNotEquals("Each slot should render a different pixel-art silhouette", rendered[1], rendered[2])
-        val names = listOf("pixel gate", "pixel bottle", "pixel flower charm")
+        val names = listOf("첫 만남 기념 조각 그림", "다시 만남 기념 조각 그림", "소중한 추억 기념 조각 그림")
         (1..3).forEach {
             compose.onNodeWithTag("souvenir_slot_$it").fetchSemanticsNode()
             compose.onNodeWithTag("souvenir_slot_$it").assertContentDescriptionEquals(names[it - 1])
@@ -83,35 +86,35 @@ class ExplorationLayoutTest {
 
     @Test fun narrowAndWideWindowsKeepMapAndSelectedProgressInTheSameViewport() {
         listOf(400, 1280).forEach { widthDp ->
-            var compact = false
             compose.activity.runOnUiThread {
                 compose.activity.setContent {
                     CompanionTheme {
                         Box(Modifier.width(widthDp.dp).height(720.dp)) {
                             ExplorationAdaptiveLayout(
-                                map = { isCompact, modifier ->
-                                    compact = isCompact
-                                    Box(modifier.height(260.dp).testTag("adaptive_map"))
+                                map = { compact, modifier ->
+                                    GeographicExplorationMap(compact, modifier) { }
                                 },
-                                details = {
-                                    Column(Modifier.testTag("selected_summary")) {
-                                        androidx.compose.material3.Text("강남구 역삼동")
-                                        (1..3).forEach { slot -> androidx.compose.material3.Text("조각 $slot · 미발견") }
-                                    }
-                                }
+                                summary = {
+                                    ExplorationSelectionSummary(
+                                        Area("1168064000", "역삼1동", "서울특별시", "강남구", emptyList(), 0.0 to 0.0, emptyList()),
+                                        emptySet(), emptySet(), Modifier.testTag("selected_summary")
+                                    )
+                                },
+                                controls = { androidx.compose.material3.Text("현재 동네 확인") }
                             )
                         }
                     }
                 }
             }
             compose.waitForIdle()
-            val map = compose.onNodeWithTag("adaptive_map").fetchSemanticsNode().boundsInRoot
+            val map = compose.onNodeWithTag("exploration_map").fetchSemanticsNode().boundsInRoot
             val summary = compose.onNodeWithTag("selected_summary").fetchSemanticsNode().boundsInRoot
             val expectedCompact = widthDp < 720
-            compose.runOnIdle { assertEquals(expectedCompact, compact) }
+            assertTrue("Map should fit the requested viewport", map.right <= widthDp && map.bottom <= 720f)
+            assertTrue("Selected summary should fit the requested viewport", summary.right <= widthDp && summary.bottom <= 720f)
             if (expectedCompact) assertTrue("Narrow layout puts the summary below the map", summary.top >= map.bottom)
             else assertTrue("Wide layout puts the summary beside the map", summary.left >= map.right)
-            listOf("강남구 역삼동", "조각 1 · 미발견", "조각 2 · 미발견", "조각 3 · 미발견").forEach { label ->
+            listOf("강남구 역삼1동", "동네 기념 조각 0 / 3", "미발견 · 1", "미발견 · 2", "미발견 · 3").forEach { label ->
                 val bounds = compose.onNodeWithText(label).fetchSemanticsNode().boundsInRoot
                 assertTrue("$label should fit in the 720dp viewport", bounds.bottom <= 720f)
             }

@@ -54,7 +54,7 @@ internal fun SouvenirImage(region: String, modifier: Modifier = Modifier, discov
     val index = explorationPlaces.indexOfFirst { it.region == region }
     if (index < 0) return
     val sheet = ImageBitmap.imageResource(R.drawable.exploration_souvenirs_v1)
-    val silhouette = when (slot) { 1 -> "pixel gate"; 2 -> "pixel bottle"; 3 -> "pixel flower charm"; else -> null }
+    val silhouette = when (slot) { 1 -> "첫 만남 기념 조각 그림"; 2 -> "다시 만남 기념 조각 그림"; 3 -> "소중한 추억 기념 조각 그림"; else -> null }
     Canvas(modifier.then(if (silhouette == null) Modifier else Modifier.semantics { contentDescription = silhouette })) {
         val cellWidth = sheet.width / 4
         val cellHeight = sheet.height / 4
