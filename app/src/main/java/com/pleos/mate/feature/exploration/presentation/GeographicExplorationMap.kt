@@ -56,7 +56,7 @@ private fun rootAreas(json: String, anchorJson: String): List<Area> {
 }
 
 @Composable
-internal fun GeographicExplorationMap(onNeighborhood: (Area?) -> Unit) {
+internal fun GeographicExplorationMap(compact: Boolean = false, modifier: Modifier = Modifier, onNeighborhood: (Area?) -> Unit) {
     val context = LocalContext.current
     var province by remember { mutableStateOf<Area?>(null) }
     var district by remember { mutableStateOf<Area?>(null) }
@@ -81,14 +81,14 @@ internal fun GeographicExplorationMap(onNeighborhood: (Area?) -> Unit) {
             else -> onNeighborhood(area)
         }
     }
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(MaterialTheme.colorScheme.surfaceContainerLow).padding(20.dp).testTag("exploration_map"), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(MaterialTheme.colorScheme.surfaceContainerLow).padding(20.dp).testTag("exploration_map"), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(when { district != null -> "${province!!.name} · ${district!!.name}"; province != null -> province!!.name; else -> "우리의 발견 지도" }, style = MaterialTheme.typography.titleLarge)
         Text(when { district != null -> "동네를 눌러 조각을 살펴보세요"; province != null -> "시·군·구를 눌러 더 가까이 볼까요?"; else -> "지역을 눌러 가까이 볼까요?" }, style = MaterialTheme.typography.bodySmall)
         if (province != null) TextButton(onClick = { loading = true; areas = emptyList(); if (district != null) district = null else province = null; onNeighborhood(null) }) { Text("← 이전 지도") }
         if (loading || areas.isEmpty()) {
-            Box(Modifier.fillMaxWidth().height(400.dp), contentAlignment = androidx.compose.ui.Alignment.Center) { CircularProgressIndicator() }
+            Box(Modifier.fillMaxWidth().height(if (compact) 260.dp else 400.dp), contentAlignment = androidx.compose.ui.Alignment.Center) { CircularProgressIndicator() }
         } else {
-            key(province?.id, district?.id) { AreaCanvas(areas, ::select) }
+            key(province?.id, district?.id) { AreaCanvas(areas, ::select, compact) }
         }
         Text("이름표나 지역을 눌러 선택해요. 확대 후 지도를 끌어 움직일 수 있어요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
@@ -125,7 +125,7 @@ private fun mapLayout(areas: List<Area>, width: Float, height: Float, zoom: Floa
 }
 
 @Composable
-private fun AreaCanvas(areas: List<Area>, onSelect: (Area) -> Unit) {
+private fun AreaCanvas(areas: List<Area>, onSelect: (Area) -> Unit, compact: Boolean) {
     var zoom by remember { mutableFloatStateOf(1f) }
     var pan by remember { mutableStateOf(Offset.Zero) }
     val density = LocalDensity.current
@@ -146,7 +146,7 @@ private fun AreaCanvas(areas: List<Area>, onSelect: (Area) -> Unit) {
                     (pan.y + amount.y).coerceIn(-size.height * (zoom - 1f) / 2, size.height * (zoom - 1f) / 2))
             }
         } else Modifier
-        Canvas(Modifier.fillMaxWidth().aspectRatio(1.15f).clip(RoundedCornerShape(26.dp)).background(Color(0xFFCDEBE7))
+        Canvas(Modifier.fillMaxWidth().aspectRatio(1.15f).then(if (compact) Modifier.heightIn(max = 260.dp) else Modifier).clip(RoundedCornerShape(26.dp)).background(Color(0xFFCDEBE7))
             .testTag("exploration_area_canvas").semantics { customActions = areas.map { area -> CustomAccessibilityAction(area.name) { onSelect(area); true } } }
             .then(drag).pointerInput(areas, zoom, pan, textSize) { detectTapGestures { tap ->
                 val layout = mapLayout(areas, size.width.toFloat(), size.height.toFloat(), zoom, pan, textSize, padding)
@@ -176,13 +176,14 @@ private fun AreaCanvas(areas: List<Area>, onSelect: (Area) -> Unit) {
                 drawPath(path, colors[index % colors.size]); drawPath(path, Color(0xFFFFFCF2), style = Stroke(2.5.dp.toPx()))
             }
             val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-                color = android.graphics.Color.rgb(54, 57, 48); textAlign = android.graphics.Paint.Align.CENTER; this.textSize = textSize; isFakeBoldText = true
+                color = android.graphics.Color.rgb(39, 45, 39); textAlign = android.graphics.Paint.Align.CENTER; this.textSize = textSize * 1.12f; isFakeBoldText = true
             }
             layout.labels.forEach { label ->
                 val rect = label.bounds
                 drawLine(Color(0xFF9E9B80).copy(alpha = .8f), label.anchor, rect.center, strokeWidth = 1.5.dp.toPx())
                 drawRoundRect(Color(0xFF8C9C86).copy(alpha = .2f), Offset(rect.left, rect.top + 2.dp.toPx()), Size(rect.width, rect.height), CornerRadius(rect.height / 2))
-                drawRoundRect(Color(0xFFFFFCF3), rect.topLeft, Size(rect.width, rect.height), CornerRadius(rect.height / 2))
+                drawRoundRect(Color(0xFF244943), rect.topLeft, Size(rect.width, rect.height), CornerRadius(rect.height / 2))
+                drawRoundRect(Color(0xFFFFFCF3), Offset(rect.left + 1.dp.toPx(), rect.top + 1.dp.toPx()), Size(rect.width - 2.dp.toPx(), rect.height - 2.dp.toPx()), CornerRadius(rect.height / 2))
                 drawContext.canvas.nativeCanvas.drawText(label.area.name, rect.center.x, rect.center.y - (paint.ascent() + paint.descent()) / 2, paint)
             }
         }

@@ -73,39 +73,12 @@ internal fun ExplorationScreen(session: CompanionSession) {
     }
     LaunchedEffect(parked) { if (!parked) { generation++; reader.cancel(); busy = false; candidate = null } }
     DisposableEffect(Unit) { onDispose { generation++; reader.cancel(); executor.shutdownNow() } }
+    val selectedSummary: @Composable () -> Unit = {
+        ExplorationSelectionSummary(selected, session.progress.explorationSouvenirs.toSet(), session.progress.exploredRegions)
+    }
     val discovery: @Composable () -> Unit = {
         FlatCard(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(22.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                val area = selected
-                if (area != null) {
-                    Text(if (area.id.length == 10) "${area.district} ${area.name}" else area.name, style = MaterialTheme.typography.titleLarge)
-                    if (area.id.length == 10) {
-                        val records = session.progress.explorationSouvenirs.filter { it.startsWith("${area.id}|") }
-                        Text("동네 기념 조각 ${records.size} / 3", style = MaterialTheme.typography.titleMedium)
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            (1..3).forEach { slot ->
-                                val found = records.any { it.split('|')[1] == slot.toString() }
-                                Column(Modifier.weight(1f).background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(16.dp)).padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                    SouvenirImage(area.province, Modifier.size(48.dp), found)
-                                    Text(if (found) listOf("첫 만남", "다시 만남", "소중한 추억")[slot - 1] else "? · $slot", style = MaterialTheme.typography.labelMedium)
-                                }
-                            }
-                        }
-                        Text("같은 동네에서도 하루에 한 조각씩 모을 수 있어요.", style = MaterialTheme.typography.bodySmall)
-                    } else {
-                        if (area.id.length == 2) {
-                            val place = explorationPlaces.firstOrNull { it.region == area.province }
-                            if (place != null) {
-                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    SouvenirImage(area.province, Modifier.size(56.dp), area.province in session.progress.exploredRegions)
-                                    Text("${place.souvenir} · ${if (area.province in session.progress.exploredRegions) "발견 완료" else "아직 발견 전"}", style = MaterialTheme.typography.bodySmall)
-                                }
-                            }
-                        }
-                        Text("지도를 눌러 동네까지 들어가 보세요.", style = MaterialTheme.typography.bodySmall)
-                    }
-                    HorizontalDivider()
-                }
                 Box(Modifier.size(56.dp).background(MaterialTheme.colorScheme.primary.copy(alpha = .12f), RoundedCornerShape(18.dp)), contentAlignment = Alignment.Center) {
                     Icon(painterResource(R.drawable.ic_mission_pin), null, Modifier.size(28.dp), tint = MaterialTheme.colorScheme.primary)
                 }
@@ -142,8 +115,67 @@ internal fun ExplorationScreen(session: CompanionSession) {
             PetStage(session.character, active = session.parkedAndAllowed, level = session.progress.level,
                 outfit = session.outfit, modifier = Modifier.size(96.dp))
         }
-        GeographicExplorationMap { selected = it }
-        discovery()
+        ExplorationAdaptiveLayout(
+            map = { compact, modifier -> GeographicExplorationMap(compact = compact, modifier = modifier) { selected = it } },
+            summary = selectedSummary,
+            controls = discovery
+        )
         Text("행정구역 자료: 통계청 SGIS · 가공 vuski/admdongkor · CC BY 4.0 · 2026.10", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+@Composable
+internal fun ExplorationAdaptiveLayout(map: @Composable (Boolean, Modifier) -> Unit, summary: @Composable () -> Unit, controls: @Composable () -> Unit) {
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        if (maxWidth >= 720.dp) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp), verticalAlignment = Alignment.Top) {
+                map(false, Modifier.weight(1.15f))
+                Column(Modifier.weight(.85f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    summary()
+                    controls()
+                }
+            }
+        } else {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                map(true, Modifier.fillMaxWidth())
+                summary()
+                controls()
+            }
+        }
+    }
+}
+
+@Composable
+internal fun ExplorationSelectionSummary(area: Area?, records: Set<String>, exploredRegions: Set<String>, modifier: Modifier = Modifier) {
+    if (area == null) return
+    FlatCard(modifier.fillMaxWidth().testTag("selected_exploration_summary")) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(if (area.id.length == 10) "${area.district} ${area.name}" else area.name, style = MaterialTheme.typography.titleMedium)
+            if (area.id.length == 10) {
+                val foundSlots = (1..3).filter { slot -> records.any { record -> record.startsWith("${area.id}|$slot|") } }
+                Text("동네 기념 조각 ${foundSlots.size} / 3", style = MaterialTheme.typography.titleSmall)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    (1..3).forEach { slot ->
+                        val found = slot in foundSlots
+                        Column(Modifier.weight(1f).background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(16.dp)).padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            SouvenirImage(area.province, Modifier.size(48.dp).testTag("neighborhood_souvenir_$slot"), found, slot, area.id)
+                            Text(if (found) listOf("첫 만남", "다시 만남", "소중한 추억")[slot - 1] else "미발견 · $slot", style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
+                }
+                Text("같은 동네에서도 하루에 한 조각씩 모을 수 있어요.", style = MaterialTheme.typography.bodySmall)
+            } else {
+                if (area.id.length == 2) {
+                    val place = explorationPlaces.firstOrNull { it.region == area.province }
+                    if (place != null) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            SouvenirImage(area.province, Modifier.size(56.dp), area.province in exploredRegions)
+                            Text("${place.souvenir} · ${if (area.province in exploredRegions) "발견 완료" else "아직 발견 전"}", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+                Text("지도를 눌러 동네까지 들어가 보세요.", style = MaterialTheme.typography.bodySmall)
+            }
+        }
     }
 }
