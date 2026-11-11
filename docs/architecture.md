@@ -1,8 +1,8 @@
 # PleosMate Android 아키텍처
 
-- 기준일: 2026-11-01
+- 기준일: 2026-11-10 패키지 구조 확인
 - 구조: 단일 `app` Gradle 모듈, feature-first 패키지, 화면 상태의 단방향 흐름
-- 현재 기능: [PRD](./pleos-vehicle-companion-prd.md)
+- 현재 기능의 기준은 `app/src/main/java/com/pleos/mate/feature/`와 대응 테스트다. 과거 요구사항 문서는 현재 사양으로 간주하지 않는다.
 - 구현 방식: 필요한 기능에 presentation/domain/data를 두고, 앱 객체 생성은 Hilt가 담당한다. use case·멀티모듈은 필요가 생길 때 도입한다.
 
 ## 1. 실제 소스 구조
@@ -44,11 +44,15 @@ feature/
   journey/data/local/                JourneyStore·JourneyRepository·JourneyDraftStore
   journey/data/vehicle/              OdometerObserver·PleosJourneyObservationFactory
   journey/presentation/              JourneyViewModel·JourneyUiState·기억 편집
+  exploration/data/                  지역 단위·지도 영역 데이터 읽기
+  exploration/presentation/          탐험 지도·지역 선택·방문 확인·기념품 수집 UI
   settings/presentation/             설정·초기화 안내
   developer/presentation/            debug 도구 진입 화면
 ```
 
-진단 Activity와 GLB 실험 코드는 `app/src/debug/java/com/pleos/mate/feature/developer/presentation/`에 있다. release에서는 해당 Activity를 포함하지 않고 탐색에서도 개발 도구를 노출하지 않는다. 런처 `com.pleos.mate.MainActivity`는 유지한다.
+탐험은 `AppTab.EXPLORE`에서 `ExplorationScreen`으로 연결된다. 지역 경계와 이름표는 앱 assets에서 읽으며, 사용자가 선택한 지역의 방문 확인 및 저장은 동료 세션·성장 저장 흐름과 연동된다. 화면에 표시되는 지역 선택 가능 여부와 방문 확인 조건은 구현 및 테스트를 기준으로 판단한다. 이 구조는 서버 계정이나 클라우드 동기화를 뜻하지 않는다.
+
+진단 Activity는 `app/src/debug/java/com/pleos/mate/feature/developer/presentation/`에 있다. release에서는 해당 Activity를 포함하지 않고 탐색에서도 개발 도구를 노출하지 않는다. 런처 `com.pleos.mate.MainActivity`는 유지한다.
 
 ## 2. 화면과 데이터 흐름
 
@@ -130,7 +134,7 @@ Hilt는 `MainActivity`와 두 ViewModel을 생성한다. `CompanionSession`은 `
 - 순수 domain과 `core/pet/model`에 Android/Compose/SDK/resource import가 없고, 공통 core에서 feature import가 없는 것을 확인했다.
 - 기존 Kotlin 파일 중 32개는 package/import 외 본문이 동일하다. 렌더 원화·파일 키·XP 규칙은 이번 변경 대상에 포함하지 않았다.
 
-새 사용자 전체 미션/실차 검증은 별도 작업이다. 현재 기능 검증 한계는 [미션 카탈로그](./design/sdk-mission-catalog.md)를 따른다.
+미션·실차 동작 검증은 별도 작업이다. 이 문서는 패키지 구조 설명이며, 상세 검증 기준을 명세하지 않는다.
 
 ### Hilt 적용 확인
 

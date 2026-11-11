@@ -5,8 +5,6 @@
             android:theme="@style/Theme.PleosMate.Compose" />
         <activity android:name=".feature.developer.presentation.MissionSafetyActivity" android:exported="true"
             android:theme="@style/Theme.PleosMate.Compose" />
-        <activity android:name=".feature.developer.presentation.GlbValidationActivity" android:exported="true"
-            android:theme="@style/Theme.PleosMate.Compose" />
         <activity android:name=".feature.developer.presentation.DoorValidationActivity" android:exported="false" />
         <activity android:name=".feature.developer.presentation.PetMotionPreviewActivity" android:exported="true"
             android:theme="@style/Theme.PleosMate.MotionPreview" />

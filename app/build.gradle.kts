@@ -1,9 +1,28 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
 }
+
+val signingProperties = Properties().apply {
+    val propertiesFile = rootProject.file("local.properties")
+    if (propertiesFile.exists()) {
+        propertiesFile.inputStream().use(::load)
+    }
+}
+val releaseStorePath = signingProperties.getProperty("pleosmate.release.storeFile")
+val releaseStorePassword = signingProperties.getProperty("pleosmate.release.storePassword")
+val releaseKeyAlias = signingProperties.getProperty("pleosmate.release.keyAlias")
+val releaseKeyPassword = signingProperties.getProperty("pleosmate.release.keyPassword")
+val hasReleaseSigning = listOf(
+    releaseStorePath,
+    releaseStorePassword,
+    releaseKeyAlias,
+    releaseKeyPassword
+).all { !it.isNullOrBlank() }
 
 android {
     namespace = "com.pleos.mate"
@@ -27,8 +46,27 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                val storePath = requireNotNull(releaseStorePath)
+                val store = file(storePath).let { if (it.isAbsolute) it else rootProject.file(storePath) }
+                storeFile = store
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+            installation {
+                enableBaselineProfile = false
+            }
             optimization {
                 enable = false
             }
@@ -63,7 +101,4 @@ dependencies {
     implementation(libs.pleos.navi.helper)
     implementation(libs.pleos.tts)
     implementation(libs.pleos.stt)
-    debugImplementation(libs.filament.android)
-    debugImplementation(libs.filament.gltfio)
-    debugImplementation(libs.filament.utils)
 }

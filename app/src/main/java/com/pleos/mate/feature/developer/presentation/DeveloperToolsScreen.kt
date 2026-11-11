@@ -25,7 +25,6 @@ internal fun DeveloperToolsScreen(session: CompanionSession) {
         listOf(
             "MissionSafetyActivity" to R.string.open_mission_safety,
             "OdometerValidationActivity" to R.string.open_odometer_probe,
-            "GlbValidationActivity" to R.string.open_glb_probe,
             "PetMotionPreviewActivity" to R.string.open_pet_motion,
             "WindowValidationActivity" to R.string.open_window_probe,
             "DoorValidationActivity" to R.string.open_door_probe
