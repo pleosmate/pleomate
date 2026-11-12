@@ -16,6 +16,8 @@ PleosMate는 Pleos 차량의 주차 후 경험과 개인 기억을 동료 펫의
 
 ## 테스트 환경 및 필요한 설정
 
+- Pleos Connect AVD: `Pleos_Connect_v2.1.0` (`Car_on_arm64_emulator`), Android 14 (API 34), arm64
+- 에뮬레이터 화면: 2560 × 1440, 160 dpi
 - Gradle Wrapper: Gradle 9.6.0
 - Android Gradle Plugin: 9.4.1
 - Gradle JDK: 25 (Gradle daemon JVM 설정 기준)
@@ -36,7 +38,9 @@ pleosmate.release.keyPassword=키비밀번호
 
 ## APK 위치
 
-현재 release APK는 저장소 루트의 [`apk/zumfriend_pleosmate_release.apk`](apk/zumfriend_pleosmate_release.apk)에 둡니다. Gradle release 빌드 산출물은 기본적으로 `app/build/outputs/apk/release/app-release.apk`에 생성되며, 보관용 파일을 갱신할 때 다음처럼 복사합니다.
+제출용 APK는 100MB를 초과하므로 GitHub 저장소에 직접 추가하지 않고 [GitHub Releases](https://github.com/pleosmate/pleomate/releases)에 업로드합니다. Release 첨부 파일명은 `zumfriend_pleosmate_release.apk`입니다. 현재 로컬 APK는 `apk/zumfriend_pleosmate_release.apk`에 있습니다.
+
+Gradle release 빌드 산출물은 기본적으로 `app/build/outputs/apk/release/app-release.apk`에 생성되며, 보관용 파일을 갱신할 때 다음처럼 복사합니다.
 
 ```bash
 ./gradlew :app:assembleRelease
