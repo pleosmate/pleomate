@@ -38,7 +38,7 @@ pleosmate.release.keyPassword=키비밀번호
 
 ## APK 위치
 
-제출용 APK는 100MB를 초과하므로 GitHub 저장소에 직접 추가하지 않고 [GitHub Releases](https://github.com/pleosmate/pleomate/releases)에 업로드합니다. Release 첨부 파일명은 `zumfriend_pleosmate_release.apk`입니다. 현재 로컬 APK는 `apk/zumfriend_pleosmate_release.apk`에 있습니다.
+제출용 APK는 100MB를 초과하므로 [PleosMate v1.0.0 Release](https://github.com/pleosmate/pleomate/releases/tag/v1.0.0)에 첨부했습니다. 첨부 파일명은 `zumfriend_pleosmate_release.apk`입니다. 로컬 보관 경로는 `apk/zumfriend_pleosmate_release.apk`입니다.
 
 Gradle release 빌드 산출물은 기본적으로 `app/build/outputs/apk/release/app-release.apk`에 생성되며, 보관용 파일을 갱신할 때 다음처럼 복사합니다.
 
